@@ -6,6 +6,7 @@ format:
     toc: true
     toc-depth: 3
     code-fold: true
+    lightbox: true
 execute:
   echo: true
   warning: false
