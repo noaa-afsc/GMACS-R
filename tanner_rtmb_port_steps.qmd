@@ -18,10 +18,8 @@ execute:
 This document is the Tanner crab parallel to `bbrkc_rtmb_port_steps.qmd`.
 The current Tanner work is at the input-orientation stage: the repository now
 has a Tanner-specific reader for the available GMACS files in `examples/tanners`.
-
-Unlike `examples/BBRKC`, the Tanner folder currently does not include
-`Gmacsall.out` or `gmacs.rep`, so ADMB likelihood, penalty, prior, and
-deterministic report parity cannot yet be audited.
+This page also checks for Tanner ADMB report outputs and reports which parity
+targets are available for future RTMB objective and deterministic checks.
 
 ## Files
 
@@ -34,6 +32,8 @@ The Tanner reader uses:
 | `examples/tanners/TannerCrab_26_22_03d5_a.Run1.ctl` | Tanner control file. |
 | `examples/tanners/TannerCrab_26_22_03d5_a.prj` | Tanner projection file. |
 | `examples/tanners/gmacs_26_22_03d5_aEffExp1.par` | Fitted parameter table. |
+| `examples/tanners/Gmacsall.out` or Tanner equivalent | Optional ADMB likelihood and fit-summary output. |
+| `examples/tanners/gmacs.rep` or Tanner equivalent | Optional ADMB report output for deterministic blocks. |
 
 Optional ADMB parity targets are discovered if they are added to the same
 folder. Canonical names are `Gmacsall.out` and `gmacs.rep`; the reader also
@@ -60,6 +60,18 @@ data.frame(
   report = names(tanner$admb_reference$files),
   path = unlist(tanner$admb_reference$files),
   available = file.exists(unlist(tanner$admb_reference$files)),
+  row.names = NULL
+)
+```
+
+Candidate ADMB report names checked by the reader:
+
+```{r}
+candidates <- tanner_admb_report_candidates("examples/tanners")
+data.frame(
+  report_type = rep(names(candidates), lengths(candidates)),
+  candidate = basename(unlist(candidates)),
+  present = file.exists(unlist(candidates)),
   row.names = NULL
 )
 ```
@@ -112,7 +124,7 @@ head(tanner$parameters[tanner$parameters$active, c(
 )], 12)
 ```
 
-## Current Status
+## ADMB Parity Report Check
 
 The Tanner reader validates:
 
@@ -122,10 +134,8 @@ The Tanner reader validates:
 - growth and maturity observation counts;
 - fitted parameter table extraction from the `.par` file.
 
-The next implementation step is to add Tanner ADMB report outputs
-(`Gmacsall.out` and `gmacs.rep`, or their Tanner-equivalent names) so the same
-style of objective and deterministic parity checks used for BBRKC can be built.
-The reader now has the hooks to parse those files when present:
+The same style of ADMB target extraction used for BBRKC is wired for Tanner
+when report outputs are present:
 
 - `read_admb_likelihood_reference()` for `nloglike`, `nlogPenalty`, and
   `priorDensity`;
@@ -134,52 +144,185 @@ The reader now has the hooks to parse those files when present:
 - `read_admb_selectivity_block()` for `slx_capture`, `slx_retaind`, and
   `slx_discard` from the report file.
 
+```{r}
+admb_ref <- tanner$admb_reference
+data.frame(
+  target = c(
+    "nloglike",
+    "nlogPenalty",
+    "priorDensity",
+    "catch fit summary",
+    "index fit summary",
+    "size fit summary",
+    "slx_capture",
+    "slx_retaind",
+    "slx_discard"
+  ),
+  source_file = c(
+    rep(admb_ref$files$all, 6),
+    rep(admb_ref$files$report, 3)
+  ),
+  parsed_rows = c(
+    if (!is.null(admb_ref$likelihood)) length(admb_ref$likelihood$nloglike) else 0L,
+    if (!is.null(admb_ref$likelihood)) length(admb_ref$likelihood$nlog_penalty) else 0L,
+    if (!is.null(admb_ref$likelihood)) length(admb_ref$likelihood$prior_density) else 0L,
+    if (!is.null(admb_ref$catch_fit)) nrow(admb_ref$catch_fit) else 0L,
+    if (!is.null(admb_ref$index_fit)) nrow(admb_ref$index_fit) else 0L,
+    if (!is.null(admb_ref$size_fit)) nrow(admb_ref$size_fit) else 0L,
+    if (!is.null(admb_ref$selectivity)) nrow(admb_ref$selectivity$capture) else 0L,
+    if (!is.null(admb_ref$selectivity)) nrow(admb_ref$selectivity$retained) else 0L,
+    if (!is.null(admb_ref$selectivity)) nrow(admb_ref$selectivity$discard) else 0L
+  ),
+  available = c(
+    rep(!is.null(admb_ref$likelihood), 3),
+    !is.null(admb_ref$catch_fit),
+    !is.null(admb_ref$index_fit),
+    !is.null(admb_ref$size_fit),
+    rep(!is.null(admb_ref$selectivity), 3)
+  ),
+  row.names = NULL
+)
+```
+
+If the parsed row counts are zero, add `Gmacsall.out` and `gmacs.rep`, or one
+of the Tanner-equivalent names listed above, to `examples/tanners`. Once those
+files are present, this page will expose the ADMB likelihood, fit, and
+selectivity targets needed to build Tanner parity checks.
+
 ## Index Diagnostics
 
-The available Tanner folder does not include predicted index fits. The figure
-below shows the observed index series that the future Tanner RTMB port should
-match.
+When Tanner ADMB fit summaries are present, the figure below shows observed and
+predicted index fits from `Gmacsall.out`. Otherwise it shows the observed input
+index series that the future Tanner RTMB port should match.
 
 ```{r}
 #| label: fig-tanner-index-observations
-#| fig-cap: "Observed Tanner crab survey index series."
+#| fig-cap: "Tanner crab index diagnostics; ADMB predictions are shown when report output is available."
 #| code-fold: true
-index_obs <- tanner$data$survey_observations
-series_ids <- sort(unique(index_obs$series))
-old_par <- par(mfrow = c(ceiling(length(series_ids) / 2), 2), mar = c(3, 3, 2, 1), oma = c(1, 1, 0, 0))
-for (series in series_ids) {
-  x <- index_obs[index_obs$series == series, ]
-  plot(x$year, x$obs, type = "b", pch = 16, col = "#1b6da8",
-       xlab = "", ylab = "", main = paste(x$fleet[1], x$sex[1], x$maturity[1]),
-       bty = "l")
-  grid(col = "grey88")
+if (!is.null(tanner$admb_reference$index_fit)) {
+  index_fit <- tanner$admb_reference$index_fit
+  series_ids <- sort(unique(index_fit$series))
+  panel_rows <- ceiling(length(series_ids) / 2)
+  panel_slots <- panel_rows * 2
+  old_par <- par(mar = c(3, 3, 2, 1), oma = c(0, 0, 0, 0))
+  layout(
+    rbind(matrix(seq_len(panel_slots), ncol = 2, byrow = TRUE), rep(panel_slots + 1, 2)),
+    heights = c(rep(1, panel_rows), 0.16)
+  )
+  for (series in series_ids) {
+    x <- index_fit[index_fit$series == series, ]
+    ylim <- range(c(x$obs, x$predicted), finite = TRUE)
+    plot(x$year, x$obs, pch = 16, col = "#1b6da8", ylim = ylim,
+         xlab = "", ylab = "", main = paste("Series", series), bty = "l")
+    line_keys <- unique(x[c("fleet", "season", "sex", "maturity")])
+    for (line_i in seq_len(nrow(line_keys))) {
+      keep <- rep(TRUE, nrow(x))
+      for (key_name in names(line_keys)) {
+        keep <- keep & x[[key_name]] == line_keys[[key_name]][line_i]
+      }
+      line_x <- x[keep, ]
+      line_x <- line_x[order(line_x$year), ]
+      lines(line_x$year, line_x$predicted, lwd = 2, col = "#c43c39")
+      points(line_x$year, line_x$predicted, pch = 1, col = "#c43c39")
+    }
+    grid(col = "grey88")
+  }
+  if (length(series_ids) < panel_slots) {
+    for (unused in seq_len(panel_slots - length(series_ids))) {
+      plot.new()
+    }
+  }
+  par(mar = c(0, 0, 0, 0))
+  plot.new()
+  legend("center", horiz = TRUE, bty = "n",
+         pch = c(16, NA), lty = c(NA, 1), lwd = c(NA, 2),
+         col = c("#1b6da8", "#c43c39"), legend = c("Observed", "Predicted"))
+  layout(1)
+  par(old_par)
+} else {
+  index_obs <- tanner$data$survey_observations
+  series_ids <- sort(unique(index_obs$series))
+  old_par <- par(mfrow = c(ceiling(length(series_ids) / 2), 2), mar = c(3, 3, 2, 1), oma = c(1, 1, 0, 0))
+  for (series in series_ids) {
+    x <- index_obs[index_obs$series == series, ]
+    plot(x$year, x$obs, type = "b", pch = 16, col = "#1b6da8",
+         xlab = "", ylab = "", main = paste(x$fleet[1], x$sex[1], x$maturity[1]),
+         bty = "l")
+    grid(col = "grey88")
+  }
+  par(old_par)
 }
-par(old_par)
 ```
 
 ## Size-Composition Diagnostics
 
-The panels below show observed Tanner size compositions for recent rows from
-the first four size-composition dataframes.
+When Tanner ADMB size-fit summaries are present, the panels compare observed
+and predicted compositions from `Gmacsall.out`. Otherwise they show observed
+input compositions for recent rows from the first four size-composition
+dataframes.
 
 ```{r}
 #| label: fig-tanner-size-composition-observations
-#| fig-cap: "Observed Tanner crab size compositions for selected recent rows."
+#| fig-cap: "Tanner crab size-composition diagnostics; ADMB predictions are shown when report output is available."
 #| code-fold: true
-size_obs <- tanner$data$size_comp_observations
-series_ids <- sort(unique(size_obs$series))[1:4]
-old_par <- par(mfrow = c(2, 2), mar = c(3, 3, 2, 1), oma = c(1, 1, 0, 0))
-for (series in series_ids) {
-  x <- size_obs[size_obs$series == series, ]
-  x <- x[order(x$year), ]
-  row <- x[nrow(x), ]
-  bins <- grep("^bin_", names(row), value = TRUE)
-  values <- as.numeric(row[1, bins])
-  values <- values / sum(values)
-  barplot(values, col = "#1b6da8", border = NA,
-       xlab = "", ylab = "", main = paste(row$fleet, row$sex, row$catch_type, row$year),
-       bty = "l")
-  grid(col = "grey88")
+if (!is.null(tanner$admb_reference$size_fit)) {
+  size_fit <- tanner$admb_reference$size_fit
+  size_keys <- c("modified_series", "year", "fleet", "season", "sex", "type", "shell", "maturity")
+  size_key_rows <- unique(size_fit[size_fit$vector == "obs", size_keys])
+  size_key_rows <- size_key_rows[order(size_key_rows$modified_series, size_key_rows$year), ]
+  series_ids <- sort(unique(size_key_rows$modified_series))[1:4]
+  old_par <- par(mar = c(3, 3, 2, 1), oma = c(0, 0, 0, 0))
+  layout(rbind(matrix(1:4, ncol = 2, byrow = TRUE), c(5, 5)), heights = c(1, 1, 0.16))
+  for (series in series_ids) {
+    candidates <- size_key_rows[size_key_rows$modified_series == series, ]
+    key <- candidates[nrow(candidates), ]
+    key_match <- rep(TRUE, nrow(size_fit))
+    for (key_name in size_keys) {
+      key_match <- key_match & size_fit[[key_name]] == key[[key_name]]
+    }
+    obs <- size_fit[key_match & size_fit$vector == "obs", c("size_bin", "value")]
+    pred <- size_fit[key_match & size_fit$vector == "pred", c("size_bin", "value")]
+    x <- merge(obs, pred, by = "size_bin", suffixes = c("_observed", "_predicted"))
+    x <- x[order(x$size_bin), ]
+    observed <- x$value_observed / sum(x$value_observed)
+    predicted <- x$value_predicted / sum(x$value_predicted)
+    ylim <- range(c(observed, predicted), finite = TRUE)
+    mids <- barplot(observed, col = "#1b6da8", border = NA,
+         ylim = ylim, xlab = "", ylab = "",
+         main = paste("Series", series, key$year), bty = "l")
+    axis(1, at = mids, labels = x$size_bin)
+    lines(mids, predicted, lwd = 2, col = "#c43c39")
+    grid(col = "grey88")
+  }
+  if (length(series_ids) < 4) {
+    for (unused in seq_len(4 - length(series_ids))) {
+      plot.new()
+    }
+  }
+  par(mar = c(0, 0, 0, 0))
+  plot.new()
+  legend("center", horiz = TRUE, bty = "n",
+         fill = c("#1b6da8", NA), border = c(NA, NA),
+         lty = c(NA, 1), lwd = c(NA, 2), col = c(NA, "#c43c39"),
+         legend = c("Observed", "Predicted"))
+  layout(1)
+  par(old_par)
+} else {
+  size_obs <- tanner$data$size_comp_observations
+  series_ids <- sort(unique(size_obs$series))[1:4]
+  old_par <- par(mfrow = c(2, 2), mar = c(3, 3, 2, 1), oma = c(1, 1, 0, 0))
+  for (series in series_ids) {
+    x <- size_obs[size_obs$series == series, ]
+    x <- x[order(x$year), ]
+    row <- x[nrow(x), ]
+    bins <- grep("^bin_", names(row), value = TRUE)
+    values <- as.numeric(row[1, bins])
+    values <- values / sum(values)
+    barplot(values, col = "#1b6da8", border = NA,
+         xlab = "", ylab = "", main = paste(row$fleet, row$sex, row$catch_type, row$year),
+         bty = "l")
+    grid(col = "grey88")
+  }
+  par(old_par)
 }
-par(old_par)
 ```

@@ -93,7 +93,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#current-reader" id="toc-current-reader" class="nav-link" data-scroll-target="#current-reader">Current Reader</a></li>
   <li><a href="#input-summary" id="toc-input-summary" class="nav-link" data-scroll-target="#input-summary">Input Summary</a></li>
   <li><a href="#parameter-summary" id="toc-parameter-summary" class="nav-link" data-scroll-target="#parameter-summary">Parameter Summary</a></li>
-  <li><a href="#current-status" id="toc-current-status" class="nav-link" data-scroll-target="#current-status">Current Status</a></li>
+  <li><a href="#admb-parity-report-check" id="toc-admb-parity-report-check" class="nav-link" data-scroll-target="#admb-parity-report-check">ADMB Parity Report Check</a></li>
   <li><a href="#index-diagnostics" id="toc-index-diagnostics" class="nav-link" data-scroll-target="#index-diagnostics">Index Diagnostics</a></li>
   <li><a href="#size-composition-diagnostics" id="toc-size-composition-diagnostics" class="nav-link" data-scroll-target="#size-composition-diagnostics">Size-Composition Diagnostics</a></li>
   </ul>
@@ -128,8 +128,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="purpose" class="level2">
 <h2 class="anchored" data-anchor-id="purpose">Purpose</h2>
-<p>This document is the Tanner crab parallel to <code>bbrkc_rtmb_port_steps.qmd</code>. The current Tanner work is at the input-orientation stage: the repository now has a Tanner-specific reader for the available GMACS files in <code>examples/tanners</code>.</p>
-<p>Unlike <code>examples/BBRKC</code>, the Tanner folder currently does not include <code>Gmacsall.out</code> or <code>gmacs.rep</code>, so ADMB likelihood, penalty, prior, and deterministic report parity cannot yet be audited.</p>
+<p>This document is the Tanner crab parallel to <code>bbrkc_rtmb_port_steps.qmd</code>. The current Tanner work is at the input-orientation stage: the repository now has a Tanner-specific reader for the available GMACS files in <code>examples/tanners</code>. This page also checks for Tanner ADMB report outputs and reports which parity targets are available for future RTMB objective and deterministic checks.</p>
 </section>
 <section id="files" class="level2">
 <h2 class="anchored" data-anchor-id="files">Files</h2>
@@ -166,6 +165,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td><code>examples/tanners/gmacs_26_22_03d5_aEffExp1.par</code></td>
 <td>Fitted parameter table.</td>
 </tr>
+<tr class="even">
+<td><code>examples/tanners/Gmacsall.out</code> or Tanner equivalent</td>
+<td>Optional ADMB likelihood and fit-summary output.</td>
+</tr>
+<tr class="odd">
+<td><code>examples/tanners/gmacs.rep</code> or Tanner equivalent</td>
+<td>Optional ADMB report output for deterministic blocks.</td>
+</tr>
 </tbody>
 </table>
 <p>Optional ADMB parity targets are discovered if they are added to the same folder. Canonical names are <code>Gmacsall.out</code> and <code>gmacs.rep</code>; the reader also checks common Tanner-specific variants such as <code>gmacs_26_22_03d5_aEffExp1.Gmacsall.out</code> and <code>gmacs_26_22_03d5_aEffExp1.rep</code>.</p>
@@ -199,18 +206,45 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 2 report &lt;NA&gt;     FALSE</code></pre>
 </div>
 </div>
+<p>Candidate ADMB report names checked by the reader:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>candidates <span class="ot">&lt;-</span> <span class="fu">tanner_admb_report_candidates</span>(<span class="st">"examples/tanners"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">report_type =</span> <span class="fu">rep</span>(<span class="fu">names</span>(candidates), <span class="fu">lengths</span>(candidates)),</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">candidate =</span> <span class="fu">basename</span>(<span class="fu">unlist</span>(candidates)),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">present =</span> <span class="fu">file.exists</span>(<span class="fu">unlist</span>(candidates)),</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names =</span> <span class="cn">NULL</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>   report_type                              candidate present
+1          all                           Gmacsall.out   FALSE
+2          all                           gmacsall.out   FALSE
+3          all                           GmacsAll.out   FALSE
+4          all                TannerCrab_Gmacsall.out   FALSE
+5          all gmacs_26_22_03d5_aEffExp1.Gmacsall.out   FALSE
+6          all      gmacs_26_22_03d5_aEffExp1.all.out   FALSE
+7       report                              gmacs.rep   FALSE
+8       report                              Gmacs.rep   FALSE
+9       report                         TannerCrab.rep   FALSE
+10      report            TannerCrab_26_22_03d5_a.rep   FALSE
+11      report          gmacs_26_22_03d5_aEffExp1.rep   FALSE</code></pre>
+</div>
+</div>
 </section>
 <section id="input-summary" class="level2">
 <h2 class="anchored" data-anchor-id="input-summary">Input Summary</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>dims <span class="ot">&lt;-</span> tanner<span class="sc">$</span>data<span class="sc">$</span>dimensions</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">quantity =</span> <span class="fu">names</span>(dims),</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">value =</span> <span class="fu">as.integer</span>(dims),</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names =</span> <span class="cn">NULL</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dims <span class="ot">&lt;-</span> tanner<span class="sc">$</span>data<span class="sc">$</span>dimensions</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">quantity =</span> <span class="fu">names</span>(dims),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">value =</span> <span class="fu">as.integer</span>(dims),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names =</span> <span class="cn">NULL</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>  quantity value
@@ -227,23 +261,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">component =</span> <span class="fu">c</span>(<span class="st">"catch"</span>, <span class="st">"survey"</span>, <span class="st">"size composition"</span>, <span class="st">"growth"</span>, <span class="st">"maturity"</span>),</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">dataframes =</span> <span class="fu">c</span>(</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    tanner<span class="sc">$</span>data<span class="sc">$</span>catch<span class="sc">$</span>n,</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    tanner<span class="sc">$</span>data<span class="sc">$</span>survey<span class="sc">$</span>n,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    tanner<span class="sc">$</span>data<span class="sc">$</span>size_comp<span class="sc">$</span>n,</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cn">NA_integer_</span>,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="cn">NA_integer_</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">rows =</span> <span class="fu">c</span>(</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sum</span>(tanner<span class="sc">$</span>data<span class="sc">$</span>catch<span class="sc">$</span>rows),</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sum</span>(tanner<span class="sc">$</span>data<span class="sc">$</span>survey<span class="sc">$</span>rows),</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sum</span>(tanner<span class="sc">$</span>data<span class="sc">$</span>size_comp<span class="sc">$</span>rows),</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    tanner<span class="sc">$</span>data<span class="sc">$</span>growth<span class="sc">$</span>n,</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    tanner<span class="sc">$</span>data<span class="sc">$</span>maturity<span class="sc">$</span>n</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">component =</span> <span class="fu">c</span>(<span class="st">"catch"</span>, <span class="st">"survey"</span>, <span class="st">"size composition"</span>, <span class="st">"growth"</span>, <span class="st">"maturity"</span>),</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">dataframes =</span> <span class="fu">c</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    tanner<span class="sc">$</span>data<span class="sc">$</span>catch<span class="sc">$</span>n,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    tanner<span class="sc">$</span>data<span class="sc">$</span>survey<span class="sc">$</span>n,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    tanner<span class="sc">$</span>data<span class="sc">$</span>size_comp<span class="sc">$</span>n,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="cn">NA_integer_</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="cn">NA_integer_</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">rows =</span> <span class="fu">c</span>(</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sum</span>(tanner<span class="sc">$</span>data<span class="sc">$</span>catch<span class="sc">$</span>rows),</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sum</span>(tanner<span class="sc">$</span>data<span class="sc">$</span>survey<span class="sc">$</span>rows),</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sum</span>(tanner<span class="sc">$</span>data<span class="sc">$</span>size_comp<span class="sc">$</span>rows),</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    tanner<span class="sc">$</span>data<span class="sc">$</span>growth<span class="sc">$</span>n,</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    tanner<span class="sc">$</span>data<span class="sc">$</span>maturity<span class="sc">$</span>n</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>         component dataframes rows
@@ -260,12 +294,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">parameter_rows =</span> <span class="fu">nrow</span>(tanner<span class="sc">$</span>parameters),</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">active_estimated_parameters =</span> <span class="fu">sum</span>(tanner<span class="sc">$</span>parameters<span class="sc">$</span>active),</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">min_estimated_index =</span> <span class="fu">min</span>(tanner<span class="sc">$</span>parameters<span class="sc">$</span>estimated_index, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">max_estimated_index =</span> <span class="fu">max</span>(tanner<span class="sc">$</span>parameters<span class="sc">$</span>estimated_index, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">parameter_rows =</span> <span class="fu">nrow</span>(tanner<span class="sc">$</span>parameters),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">active_estimated_parameters =</span> <span class="fu">sum</span>(tanner<span class="sc">$</span>parameters<span class="sc">$</span>active),</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">min_estimated_index =</span> <span class="fu">min</span>(tanner<span class="sc">$</span>parameters<span class="sc">$</span>estimated_index, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">max_estimated_index =</span> <span class="fu">max</span>(tanner<span class="sc">$</span>parameters<span class="sc">$</span>estimated_index, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>  parameter_rows active_estimated_parameters min_estimated_index
@@ -277,9 +311,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(tanner<span class="sc">$</span>parameters[tanner<span class="sc">$</span>parameters<span class="sc">$</span>active, <span class="fu">c</span>(</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"parameter_index"</span>, <span class="st">"estimated_index"</span>, <span class="st">"value"</span>, <span class="st">"label"</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>)], <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(tanner<span class="sc">$</span>parameters[tanner<span class="sc">$</span>parameters<span class="sc">$</span>active, <span class="fu">c</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"parameter_index"</span>, <span class="st">"estimated_index"</span>, <span class="st">"value"</span>, <span class="st">"label"</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>)], <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>   parameter_index estimated_index       value
@@ -311,8 +345,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="current-status" class="level2">
-<h2 class="anchored" data-anchor-id="current-status">Current Status</h2>
+<section id="admb-parity-report-check" class="level2">
+<h2 class="anchored" data-anchor-id="admb-parity-report-check">ADMB Parity Report Check</h2>
 <p>The Tanner reader validates:</p>
 <ul>
 <li>model dimensions and size breaks;</li>
@@ -321,39 +355,136 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>growth and maturity observation counts;</li>
 <li>fitted parameter table extraction from the <code>.par</code> file.</li>
 </ul>
-<p>The next implementation step is to add Tanner ADMB report outputs (<code>Gmacsall.out</code> and <code>gmacs.rep</code>, or their Tanner-equivalent names) so the same style of objective and deterministic parity checks used for BBRKC can be built. The reader now has the hooks to parse those files when present:</p>
+<p>The same style of ADMB target extraction used for BBRKC is wired for Tanner when report outputs are present:</p>
 <ul>
 <li><code>read_admb_likelihood_reference()</code> for <code>nloglike</code>, <code>nlogPenalty</code>, and <code>priorDensity</code>;</li>
 <li><code>read_admb_catch_fit_summary()</code>, <code>read_admb_index_fit_summary()</code>, and <code>read_admb_size_fit_summary()</code> for observed/predicted fit summaries;</li>
 <li><code>read_admb_selectivity_block()</code> for <code>slx_capture</code>, <code>slx_retaind</code>, and <code>slx_discard</code> from the report file.</li>
 </ul>
-</section>
-<section id="index-diagnostics" class="level2">
-<h2 class="anchored" data-anchor-id="index-diagnostics">Index Diagnostics</h2>
-<p>The available Tanner folder does not include predicted index fits. The figure below shows the observed index series that the future Tanner RTMB port should match.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>index_obs <span class="ot">&lt;-</span> tanner<span class="sc">$</span>data<span class="sc">$</span>survey_observations</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>series_ids <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">unique</span>(index_obs<span class="sc">$</span>series))</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>old_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="fu">ceiling</span>(<span class="fu">length</span>(series_ids) <span class="sc">/</span> <span class="dv">2</span>), <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">1</span>), <span class="at">oma =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>))</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (series <span class="cf">in</span> series_ids) {</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> index_obs[index_obs<span class="sc">$</span>series <span class="sc">==</span> series, ]</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(x<span class="sc">$</span>year, x<span class="sc">$</span>obs, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> <span class="st">"#1b6da8"</span>,</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">ylab =</span> <span class="st">""</span>, <span class="at">main =</span> <span class="fu">paste</span>(x<span class="sc">$</span>fleet[<span class="dv">1</span>], x<span class="sc">$</span>sex[<span class="dv">1</span>], x<span class="sc">$</span>maturity[<span class="dv">1</span>]),</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">bty =</span> <span class="st">"l"</span>)</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grid</span>(<span class="at">col =</span> <span class="st">"grey88"</span>)</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(old_par)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>admb_ref <span class="ot">&lt;-</span> tanner<span class="sc">$</span>admb_reference</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">target =</span> <span class="fu">c</span>(</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nloglike"</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nlogPenalty"</span>,</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"priorDensity"</span>,</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"catch fit summary"</span>,</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"index fit summary"</span>,</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"size fit summary"</span>,</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"slx_capture"</span>,</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"slx_retaind"</span>,</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"slx_discard"</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">source_file =</span> <span class="fu">c</span>(</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rep</span>(admb_ref<span class="sc">$</span>files<span class="sc">$</span>all, <span class="dv">6</span>),</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rep</span>(admb_ref<span class="sc">$</span>files<span class="sc">$</span>report, <span class="dv">3</span>)</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">parsed_rows =</span> <span class="fu">c</span>(</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(admb_ref<span class="sc">$</span>likelihood)) <span class="fu">length</span>(admb_ref<span class="sc">$</span>likelihood<span class="sc">$</span>nloglike) <span class="cf">else</span> <span class="dv">0</span>L,</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(admb_ref<span class="sc">$</span>likelihood)) <span class="fu">length</span>(admb_ref<span class="sc">$</span>likelihood<span class="sc">$</span>nlog_penalty) <span class="cf">else</span> <span class="dv">0</span>L,</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(admb_ref<span class="sc">$</span>likelihood)) <span class="fu">length</span>(admb_ref<span class="sc">$</span>likelihood<span class="sc">$</span>prior_density) <span class="cf">else</span> <span class="dv">0</span>L,</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(admb_ref<span class="sc">$</span>catch_fit)) <span class="fu">nrow</span>(admb_ref<span class="sc">$</span>catch_fit) <span class="cf">else</span> <span class="dv">0</span>L,</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(admb_ref<span class="sc">$</span>index_fit)) <span class="fu">nrow</span>(admb_ref<span class="sc">$</span>index_fit) <span class="cf">else</span> <span class="dv">0</span>L,</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(admb_ref<span class="sc">$</span>size_fit)) <span class="fu">nrow</span>(admb_ref<span class="sc">$</span>size_fit) <span class="cf">else</span> <span class="dv">0</span>L,</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(admb_ref<span class="sc">$</span>selectivity)) <span class="fu">nrow</span>(admb_ref<span class="sc">$</span>selectivity<span class="sc">$</span>capture) <span class="cf">else</span> <span class="dv">0</span>L,</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(admb_ref<span class="sc">$</span>selectivity)) <span class="fu">nrow</span>(admb_ref<span class="sc">$</span>selectivity<span class="sc">$</span>retained) <span class="cf">else</span> <span class="dv">0</span>L,</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(admb_ref<span class="sc">$</span>selectivity)) <span class="fu">nrow</span>(admb_ref<span class="sc">$</span>selectivity<span class="sc">$</span>discard) <span class="cf">else</span> <span class="dv">0</span>L</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">available =</span> <span class="fu">c</span>(</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rep</span>(<span class="sc">!</span><span class="fu">is.null</span>(admb_ref<span class="sc">$</span>likelihood), <span class="dv">3</span>),</span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.null</span>(admb_ref<span class="sc">$</span>catch_fit),</span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.null</span>(admb_ref<span class="sc">$</span>index_fit),</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.null</span>(admb_ref<span class="sc">$</span>size_fit),</span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rep</span>(<span class="sc">!</span><span class="fu">is.null</span>(admb_ref<span class="sc">$</span>selectivity), <span class="dv">3</span>)</span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names =</span> <span class="cn">NULL</span></span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>             target source_file parsed_rows available
+1          nloglike        &lt;NA&gt;           0     FALSE
+2       nlogPenalty        &lt;NA&gt;           0     FALSE
+3      priorDensity        &lt;NA&gt;           0     FALSE
+4 catch fit summary        &lt;NA&gt;           0     FALSE
+5 index fit summary        &lt;NA&gt;           0     FALSE
+6  size fit summary        &lt;NA&gt;           0     FALSE
+7       slx_capture        &lt;NA&gt;           0     FALSE
+8       slx_retaind        &lt;NA&gt;           0     FALSE
+9       slx_discard        &lt;NA&gt;           0     FALSE</code></pre>
+</div>
+</div>
+<p>If the parsed row counts are zero, add <code>Gmacsall.out</code> and <code>gmacs.rep</code>, or one of the Tanner-equivalent names listed above, to <code>examples/tanners</code>. Once those files are present, this page will expose the ADMB likelihood, fit, and selectivity targets needed to build Tanner parity checks.</p>
+</section>
+<section id="index-diagnostics" class="level2">
+<h2 class="anchored" data-anchor-id="index-diagnostics">Index Diagnostics</h2>
+<p>When Tanner ADMB fit summaries are present, the figure below shows observed and predicted index fits from <code>Gmacsall.out</code>. Otherwise it shows the observed input index series that the future Tanner RTMB port should match.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(tanner<span class="sc">$</span>admb_reference<span class="sc">$</span>index_fit)) {</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  index_fit <span class="ot">&lt;-</span> tanner<span class="sc">$</span>admb_reference<span class="sc">$</span>index_fit</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  series_ids <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">unique</span>(index_fit<span class="sc">$</span>series))</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  panel_rows <span class="ot">&lt;-</span> <span class="fu">ceiling</span>(<span class="fu">length</span>(series_ids) <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  panel_slots <span class="ot">&lt;-</span> panel_rows <span class="sc">*</span> <span class="dv">2</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  old_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">1</span>), <span class="at">oma =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layout</span>(</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rbind</span>(<span class="fu">matrix</span>(<span class="fu">seq_len</span>(panel_slots), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>), <span class="fu">rep</span>(panel_slots <span class="sc">+</span> <span class="dv">1</span>, <span class="dv">2</span>)),</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">heights =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, panel_rows), <span class="fl">0.16</span>)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (series <span class="cf">in</span> series_ids) {</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> index_fit[index_fit<span class="sc">$</span>series <span class="sc">==</span> series, ]</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    ylim <span class="ot">&lt;-</span> <span class="fu">range</span>(<span class="fu">c</span>(x<span class="sc">$</span>obs, x<span class="sc">$</span>predicted), <span class="at">finite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">plot</span>(x<span class="sc">$</span>year, x<span class="sc">$</span>obs, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> <span class="st">"#1b6da8"</span>, <span class="at">ylim =</span> ylim,</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">ylab =</span> <span class="st">""</span>, <span class="at">main =</span> <span class="fu">paste</span>(<span class="st">"Series"</span>, series), <span class="at">bty =</span> <span class="st">"l"</span>)</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    line_keys <span class="ot">&lt;-</span> <span class="fu">unique</span>(x[<span class="fu">c</span>(<span class="st">"fleet"</span>, <span class="st">"season"</span>, <span class="st">"sex"</span>, <span class="st">"maturity"</span>)])</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (line_i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(line_keys))) {</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>      keep <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">TRUE</span>, <span class="fu">nrow</span>(x))</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> (key_name <span class="cf">in</span> <span class="fu">names</span>(line_keys)) {</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>        keep <span class="ot">&lt;-</span> keep <span class="sc">&amp;</span> x[[key_name]] <span class="sc">==</span> line_keys[[key_name]][line_i]</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>      line_x <span class="ot">&lt;-</span> x[keep, ]</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>      line_x <span class="ot">&lt;-</span> line_x[<span class="fu">order</span>(line_x<span class="sc">$</span>year), ]</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>      <span class="fu">lines</span>(line_x<span class="sc">$</span>year, line_x<span class="sc">$</span>predicted, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"#c43c39"</span>)</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>      <span class="fu">points</span>(line_x<span class="sc">$</span>year, line_x<span class="sc">$</span>predicted, <span class="at">pch =</span> <span class="dv">1</span>, <span class="at">col =</span> <span class="st">"#c43c39"</span>)</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grid</span>(<span class="at">col =</span> <span class="st">"grey88"</span>)</span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(series_ids) <span class="sc">&lt;</span> panel_slots) {</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (unused <span class="cf">in</span> <span class="fu">seq_len</span>(panel_slots <span class="sc">-</span> <span class="fu">length</span>(series_ids))) {</span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>      <span class="fu">plot.new</span>()</span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot.new</span>()</span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">legend</span>(<span class="st">"center"</span>, <span class="at">horiz =</span> <span class="cn">TRUE</span>, <span class="at">bty =</span> <span class="st">"n"</span>,</span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>         <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">16</span>, <span class="cn">NA</span>), <span class="at">lty =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="dv">1</span>), <span class="at">lwd =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="dv">2</span>),</span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>         <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"#1b6da8"</span>, <span class="st">"#c43c39"</span>), <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Observed"</span>, <span class="st">"Predicted"</span>))</span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layout</span>(<span class="dv">1</span>)</span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(old_par)</span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>  index_obs <span class="ot">&lt;-</span> tanner<span class="sc">$</span>data<span class="sc">$</span>survey_observations</span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a>  series_ids <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">unique</span>(index_obs<span class="sc">$</span>series))</span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a>  old_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="fu">ceiling</span>(<span class="fu">length</span>(series_ids) <span class="sc">/</span> <span class="dv">2</span>), <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">1</span>), <span class="at">oma =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (series <span class="cf">in</span> series_ids) {</span>
+<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> index_obs[index_obs<span class="sc">$</span>series <span class="sc">==</span> series, ]</span>
+<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">plot</span>(x<span class="sc">$</span>year, x<span class="sc">$</span>obs, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> <span class="st">"#1b6da8"</span>,</span>
+<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a>         <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">ylab =</span> <span class="st">""</span>, <span class="at">main =</span> <span class="fu">paste</span>(x<span class="sc">$</span>fleet[<span class="dv">1</span>], x<span class="sc">$</span>sex[<span class="dv">1</span>], x<span class="sc">$</span>maturity[<span class="dv">1</span>]),</span>
+<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a>         <span class="at">bty =</span> <span class="st">"l"</span>)</span>
+<span id="cb16-50"><a href="#cb16-50" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grid</span>(<span class="at">col =</span> <span class="st">"grey88"</span>)</span>
+<span id="cb16-51"><a href="#cb16-51" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb16-52"><a href="#cb16-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(old_par)</span>
+<span id="cb16-53"><a href="#cb16-53" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-tanner-index-observations" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-tanner-index-observations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="tanner_rtmb_port_steps_files/figure-html/fig-tanner-index-observations-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;1: Observed Tanner crab survey index series."><img src="tanner_rtmb_port_steps_files/figure-html/fig-tanner-index-observations-1.png" class="img-fluid figure-img" width="672"></a>
+<a href="tanner_rtmb_port_steps_files/figure-html/fig-tanner-index-observations-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure&nbsp;1: Tanner crab index diagnostics; ADMB predictions are shown when report output is available."><img src="tanner_rtmb_port_steps_files/figure-html/fig-tanner-index-observations-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tanner-index-observations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Observed Tanner crab survey index series.
+Figure&nbsp;1: Tanner crab index diagnostics; ADMB predictions are shown when report output is available.
 </figcaption>
 </figure>
 </div>
@@ -362,35 +493,79 @@ Figure&nbsp;1: Observed Tanner crab survey index series.
 </section>
 <section id="size-composition-diagnostics" class="level2">
 <h2 class="anchored" data-anchor-id="size-composition-diagnostics">Size-Composition Diagnostics</h2>
-<p>The panels below show observed Tanner size compositions for recent rows from the first four size-composition dataframes.</p>
+<p>When Tanner ADMB size-fit summaries are present, the panels compare observed and predicted compositions from <code>Gmacsall.out</code>. Otherwise they show observed input compositions for recent rows from the first four size-composition dataframes.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>size_obs <span class="ot">&lt;-</span> tanner<span class="sc">$</span>data<span class="sc">$</span>size_comp_observations</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>series_ids <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">unique</span>(size_obs<span class="sc">$</span>series))[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>old_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">1</span>), <span class="at">oma =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>))</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (series <span class="cf">in</span> series_ids) {</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> size_obs[size_obs<span class="sc">$</span>series <span class="sc">==</span> series, ]</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> x[<span class="fu">order</span>(x<span class="sc">$</span>year), ]</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  row <span class="ot">&lt;-</span> x[<span class="fu">nrow</span>(x), ]</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  bins <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"^bin_"</span>, <span class="fu">names</span>(row), <span class="at">value =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  values <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(row[<span class="dv">1</span>, bins])</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  values <span class="ot">&lt;-</span> values <span class="sc">/</span> <span class="fu">sum</span>(values)</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">barplot</span>(values, <span class="at">col =</span> <span class="st">"#1b6da8"</span>, <span class="at">border =</span> <span class="cn">NA</span>,</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">ylab =</span> <span class="st">""</span>, <span class="at">main =</span> <span class="fu">paste</span>(row<span class="sc">$</span>fleet, row<span class="sc">$</span>sex, row<span class="sc">$</span>catch_type, row<span class="sc">$</span>year),</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">bty =</span> <span class="st">"l"</span>)</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grid</span>(<span class="at">col =</span> <span class="st">"grey88"</span>)</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(old_par)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(tanner<span class="sc">$</span>admb_reference<span class="sc">$</span>size_fit)) {</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  size_fit <span class="ot">&lt;-</span> tanner<span class="sc">$</span>admb_reference<span class="sc">$</span>size_fit</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  size_keys <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"modified_series"</span>, <span class="st">"year"</span>, <span class="st">"fleet"</span>, <span class="st">"season"</span>, <span class="st">"sex"</span>, <span class="st">"type"</span>, <span class="st">"shell"</span>, <span class="st">"maturity"</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  size_key_rows <span class="ot">&lt;-</span> <span class="fu">unique</span>(size_fit[size_fit<span class="sc">$</span>vector <span class="sc">==</span> <span class="st">"obs"</span>, size_keys])</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  size_key_rows <span class="ot">&lt;-</span> size_key_rows[<span class="fu">order</span>(size_key_rows<span class="sc">$</span>modified_series, size_key_rows<span class="sc">$</span>year), ]</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  series_ids <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">unique</span>(size_key_rows<span class="sc">$</span>modified_series))[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  old_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">1</span>), <span class="at">oma =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layout</span>(<span class="fu">rbind</span>(<span class="fu">matrix</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>), <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">5</span>)), <span class="at">heights =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">0.16</span>))</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (series <span class="cf">in</span> series_ids) {</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    candidates <span class="ot">&lt;-</span> size_key_rows[size_key_rows<span class="sc">$</span>modified_series <span class="sc">==</span> series, ]</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    key <span class="ot">&lt;-</span> candidates[<span class="fu">nrow</span>(candidates), ]</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    key_match <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">TRUE</span>, <span class="fu">nrow</span>(size_fit))</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (key_name <span class="cf">in</span> size_keys) {</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>      key_match <span class="ot">&lt;-</span> key_match <span class="sc">&amp;</span> size_fit[[key_name]] <span class="sc">==</span> key[[key_name]]</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    obs <span class="ot">&lt;-</span> size_fit[key_match <span class="sc">&amp;</span> size_fit<span class="sc">$</span>vector <span class="sc">==</span> <span class="st">"obs"</span>, <span class="fu">c</span>(<span class="st">"size_bin"</span>, <span class="st">"value"</span>)]</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    pred <span class="ot">&lt;-</span> size_fit[key_match <span class="sc">&amp;</span> size_fit<span class="sc">$</span>vector <span class="sc">==</span> <span class="st">"pred"</span>, <span class="fu">c</span>(<span class="st">"size_bin"</span>, <span class="st">"value"</span>)]</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">merge</span>(obs, pred, <span class="at">by =</span> <span class="st">"size_bin"</span>, <span class="at">suffixes =</span> <span class="fu">c</span>(<span class="st">"_observed"</span>, <span class="st">"_predicted"</span>))</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> x[<span class="fu">order</span>(x<span class="sc">$</span>size_bin), ]</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    observed <span class="ot">&lt;-</span> x<span class="sc">$</span>value_observed <span class="sc">/</span> <span class="fu">sum</span>(x<span class="sc">$</span>value_observed)</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    predicted <span class="ot">&lt;-</span> x<span class="sc">$</span>value_predicted <span class="sc">/</span> <span class="fu">sum</span>(x<span class="sc">$</span>value_predicted)</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    ylim <span class="ot">&lt;-</span> <span class="fu">range</span>(<span class="fu">c</span>(observed, predicted), <span class="at">finite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    mids <span class="ot">&lt;-</span> <span class="fu">barplot</span>(observed, <span class="at">col =</span> <span class="st">"#1b6da8"</span>, <span class="at">border =</span> <span class="cn">NA</span>,</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>         <span class="at">ylim =</span> ylim, <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">ylab =</span> <span class="st">""</span>,</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>         <span class="at">main =</span> <span class="fu">paste</span>(<span class="st">"Series"</span>, series, key<span class="sc">$</span>year), <span class="at">bty =</span> <span class="st">"l"</span>)</span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">axis</span>(<span class="dv">1</span>, <span class="at">at =</span> mids, <span class="at">labels =</span> x<span class="sc">$</span>size_bin)</span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lines</span>(mids, predicted, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"#c43c39"</span>)</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grid</span>(<span class="at">col =</span> <span class="st">"grey88"</span>)</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(series_ids) <span class="sc">&lt;</span> <span class="dv">4</span>) {</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (unused <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="dv">4</span> <span class="sc">-</span> <span class="fu">length</span>(series_ids))) {</span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>      <span class="fu">plot.new</span>()</span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot.new</span>()</span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">legend</span>(<span class="st">"center"</span>, <span class="at">horiz =</span> <span class="cn">TRUE</span>, <span class="at">bty =</span> <span class="st">"n"</span>,</span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>         <span class="at">fill =</span> <span class="fu">c</span>(<span class="st">"#1b6da8"</span>, <span class="cn">NA</span>), <span class="at">border =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="cn">NA</span>),</span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>         <span class="at">lty =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="dv">1</span>), <span class="at">lwd =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="dv">2</span>), <span class="at">col =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="st">"#c43c39"</span>),</span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>         <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Observed"</span>, <span class="st">"Predicted"</span>))</span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layout</span>(<span class="dv">1</span>)</span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(old_par)</span>
+<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a>  size_obs <span class="ot">&lt;-</span> tanner<span class="sc">$</span>data<span class="sc">$</span>size_comp_observations</span>
+<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a>  series_ids <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">unique</span>(size_obs<span class="sc">$</span>series))[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]</span>
+<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a>  old_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">1</span>), <span class="at">oma =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb17-47"><a href="#cb17-47" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (series <span class="cf">in</span> series_ids) {</span>
+<span id="cb17-48"><a href="#cb17-48" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> size_obs[size_obs<span class="sc">$</span>series <span class="sc">==</span> series, ]</span>
+<span id="cb17-49"><a href="#cb17-49" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> x[<span class="fu">order</span>(x<span class="sc">$</span>year), ]</span>
+<span id="cb17-50"><a href="#cb17-50" aria-hidden="true" tabindex="-1"></a>    row <span class="ot">&lt;-</span> x[<span class="fu">nrow</span>(x), ]</span>
+<span id="cb17-51"><a href="#cb17-51" aria-hidden="true" tabindex="-1"></a>    bins <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"^bin_"</span>, <span class="fu">names</span>(row), <span class="at">value =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb17-52"><a href="#cb17-52" aria-hidden="true" tabindex="-1"></a>    values <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(row[<span class="dv">1</span>, bins])</span>
+<span id="cb17-53"><a href="#cb17-53" aria-hidden="true" tabindex="-1"></a>    values <span class="ot">&lt;-</span> values <span class="sc">/</span> <span class="fu">sum</span>(values)</span>
+<span id="cb17-54"><a href="#cb17-54" aria-hidden="true" tabindex="-1"></a>    <span class="fu">barplot</span>(values, <span class="at">col =</span> <span class="st">"#1b6da8"</span>, <span class="at">border =</span> <span class="cn">NA</span>,</span>
+<span id="cb17-55"><a href="#cb17-55" aria-hidden="true" tabindex="-1"></a>         <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">ylab =</span> <span class="st">""</span>, <span class="at">main =</span> <span class="fu">paste</span>(row<span class="sc">$</span>fleet, row<span class="sc">$</span>sex, row<span class="sc">$</span>catch_type, row<span class="sc">$</span>year),</span>
+<span id="cb17-56"><a href="#cb17-56" aria-hidden="true" tabindex="-1"></a>         <span class="at">bty =</span> <span class="st">"l"</span>)</span>
+<span id="cb17-57"><a href="#cb17-57" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grid</span>(<span class="at">col =</span> <span class="st">"grey88"</span>)</span>
+<span id="cb17-58"><a href="#cb17-58" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb17-59"><a href="#cb17-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">par</span>(old_par)</span>
+<span id="cb17-60"><a href="#cb17-60" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-tanner-size-composition-observations" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-tanner-size-composition-observations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="tanner_rtmb_port_steps_files/figure-html/fig-tanner-size-composition-observations-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;2: Observed Tanner crab size compositions for selected recent rows."><img src="tanner_rtmb_port_steps_files/figure-html/fig-tanner-size-composition-observations-1.png" class="img-fluid figure-img" width="672"></a>
+<a href="tanner_rtmb_port_steps_files/figure-html/fig-tanner-size-composition-observations-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure&nbsp;2: Tanner crab size-composition diagnostics; ADMB predictions are shown when report output is available."><img src="tanner_rtmb_port_steps_files/figure-html/fig-tanner-size-composition-observations-1.png" class="img-fluid figure-img" width="672"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tanner-size-composition-observations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: Observed Tanner crab size compositions for selected recent rows.
+Figure&nbsp;2: Tanner crab size-composition diagnostics; ADMB predictions are shown when report output is available.
 </figcaption>
 </figure>
 </div>
