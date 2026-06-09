@@ -1,0 +1,72 @@
+# GMACS-R
+
+This repository contains an R/RTMB scaffold for porting GMACS stock assessment
+logic, with the current implementation focused on the BBRKC model.
+
+The detailed porting notes, parity checks, and next implementation steps live in
+`bbrkc_rtmb_port_steps.qmd`.
+
+## Repository contents
+
+- `R/read_gmacs_bbrkc.R`: parsers for BBRKC GMACS input files and ADMB reference
+  outputs.
+- `R/gmacs_rtmb_nll.R`: RTMB data/parameter construction, parameter mapping,
+  deterministic model blocks, comparison helpers, and the RTMB objective
+  factory.
+- `run_bbrkc.R`: parser, RTMB tape, and component-comparison smoke run.
+- `optimize_bbrkc.R`: short `nlminb()` optimization smoke test.
+- `gmacs.tpl`: GMACS ADMB template reference.
+- `tanners/`: Tanner crab GMACS input files retained as local reference
+  material.
+- `GMACS_InputFiles.zip`: original archive for the Tanner crab input files. This
+  is ignored for future commits; the extracted `tanners/` files are the useful
+  repository copy.
+
+## Inputs
+
+The BBRKC scripts require these files in one directory:
+
+- `gmacs.dat`
+- `gmacs.pin`
+- `Gmacsall.out`
+- `gmacs.rep`
+
+By default the scripts look in `build/BBRKC`, which is ignored because it is a
+local generated/input workspace. To use another location, set
+`GMACS_BBRKC_ROOT`:
+
+```sh
+GMACS_BBRKC_ROOT=/path/to/BBRKC Rscript run_bbrkc.R
+GMACS_BBRKC_ROOT=/path/to/BBRKC Rscript optimize_bbrkc.R
+```
+
+From R:
+
+```r
+Sys.setenv(GMACS_BBRKC_ROOT = "/path/to/BBRKC")
+source("run_bbrkc.R")
+```
+
+## Current scope
+
+- Reads BBRKC data sections for dimensions, M proportions, fleets, catch,
+  survey indices, size compositions, growth, and environment.
+- Reads fitted parameter vectors from `gmacs.pin`.
+- Builds an RTMB `map` from BBRKC control phases, mapping the 560 full `.pin`
+  entries down to the 366 active ADMB parameters.
+- Reads ADMB likelihood, selectivity, fishing mortality, natural mortality,
+  total mortality, growth, numbers-at-size, catch-fit, index-fit, size-fit, and
+  summary reference blocks from `Gmacsall.out` and `gmacs.rep`.
+- Ports deterministic BBRKC selectivity, fishing mortality, natural mortality,
+  total mortality, survival setup, molt probability, growth transition matrices,
+  recruitment, FREEPARSSCALED initial numbers, seasonal population updates,
+  catch predictions, survey index predictions, and size-composition
+  predictions.
+- Builds an RTMB objective with named likelihood slots matching `gmacs.tpl`.
+
+## Next porting steps
+
+1. Audit each likelihood component against ADMB `nloglike`, `nlogPenalty`, and
+   `priorDensity` blocks after every deterministic prediction change.
+2. Replace remaining numerical precomputations with AD-compatible equivalents
+   where active parameters should affect the tape.

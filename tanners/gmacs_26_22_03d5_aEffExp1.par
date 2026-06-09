@@ -1,0 +1,547 @@
+#est    par_count  par_type     est_par_count
+8 	        # 1	Log(R0)	(not_estd)
+8 	        # 2	Log(Rinitial)	(not_estd)
+6.325658712	# 3	Log(Rbar)	1
+31.74396 	  # 4	Recruitment_ra-males	(not_estd)
+3.637588 	  # 5	Recruitment_rb-males	(not_estd)
+0 	        # 6	Recruitment_ra-females_(ln-scale_offset_to_males!)	(not_estd)
+0 	        # 7	Recruitment_rb-females_(ln-scale_offset_to_males!)	(not_estd)
+-0.756116 	# 8	log(SigmaR)	(not_estd)
+0.75 	      # 9	Steepness	(not_estd)
+0.01 	      # 10	Rho	(not_estd)
+5.424596989	# 11	Log(Rbar)_block_group_10_block_1	2
+
+25 	            # 12	Alpha0_base_male	(not_estd)
+32.3984668891 	# 13	Alpha_male	
+125 	          # 14	Beta0_base_male	(not_estd)
+163.941063350 	# 15	Beta_male	
+0.710735002741 	# 16	Gscale_male_(ln-scale)	(not_estd)
+25  	          # 17	Alpha0_base_female	(not_estd)
+33.3714518999 	# 18	Alpha_female	
+100 	          # 19	Beta0_base_female	(not_estd)
+115.381601385 	# 20	Beta_female
+0.710735002741 	# 21	Gscale_female_(ln-scale)	(not_estd: should be linked to males if estimated)
+
+0.3174953 	# 22	M_base_male_mature	3
+0.7395193 	# 23	M_male_mature_block_group_1_block_1	4
+0.2510995 	# 24	M_base_male_immature	5
+0.3191779 	# 25	M_base_female_mature	6
+0.6503671 	# 26	M_female_mature_block_group_1_block_1	7
+
+4.832744176   # 27	Sel_TCF_male_base_Logistic_mean	8                   # 4.83870096075
+2.089427874   # 28	Sel_TCF_male_base_Logistic_cv	9                     # 2.107013
+1.738983331   # 29	Sel_TCF_male_Logistic_cv_block_group_9_block_1	10  # 1.761285
+
+3.45414152   # 30  Sel_SCF_male_base_Double_normal4a_par_1_ascWid   1
+5.074829812  # 31  Sel_SCF_male_base_Double_normal4a_par_2_ascPkZ   2 
+0.09531018   # 32  Sel_SCF_male_base_Double_normal4a_par_3_dscWid   3
+0.001        # 32  Sel_SCF_male_base_Double_normal4a_par_4_sclInc   4
+182          # 32  Sel_SCF_male_base_Double_normal4a_par_5_fsZ      5
+
+2.763319092  # 33  Sel_SCF_male_Double_normal4a_par_1_block_group_6_block_1_ascWid  6
+2.658881135  # 34  Sel_SCF_male_Double_normal4a_par_1_block_group_6_block_2_ascWid  7
+
+4.78796681  # 35  Sel_SCF_male_Double_normal4a_par_2_block_group_6_block_1_ascPkz  8
+4.827713381 # 36  Sel_SCF_male_Double_normal4a_par_2_block_group_6_block_2_ascPkz  9
+
+2.966391683  # 37  Sel_SCF_male_Double_normal4a_par_3_block_group_6_block_1_dscWid  10
+2.594847495  # 38  Sel_SCF_male_Double_normal4a_par_3_block_group_6_block_2_dscWid  11
+
+0.001  # 35  Sel_SCF_male_Double_normal4a_par_4_block_group_6_block_1_sclInc  12
+0.001  # 36  Sel_SCF_male_Double_normal4a_par_4_block_group_6_block_2_sclInc  13
+
+2.983242172  # 39  Sel_RKF_male_base_Ascending_normal_par_1_asc_width  20
+5.192401141  # 40  Sel_RKF_male_base_Ascending_normal_par_2_size-at-1  (not_estd)
+3.316901159  # 41  Sel_RKF_male_Ascending_normal_par_1_asc_width_block_group_7_block_1  21
+3.302104604  # 42  Sel_RKF_male_Ascending_normal_par_1_asc_width_block_group_7_block_2  22
+5.192401141  # 43  Sel_RKF_male_Ascending_normal_par_2_size-at-1_block_group_7_block_1  (not_estd)
+5.192401141  # 44  Sel_RKF_male_Ascending_normal_par_2_size-at-1_block_group_7_block_2  (not_estd)
+
+4.146247534  # 45  Sel_GF_All_male_base_Logistic_mean  23
+2.462969581  # 46  Sel_GF_All_male_base_Logistic_cv  24
+5.056792128  # 47  Sel_GF_All_male_Logistic_mean_block_group_8_block_1  25
+4.602582651  # 48  Sel_GF_All_male_Logistic_mean_block_group_8_block_2  26
+3.68740191   # 49  Sel_GF_All_male_Logistic_cv_block_group_8_block_1  27
+2.784591363  # 50  Sel_GF_All_male_Logistic_cv_block_group_8_block_2  28
+
+4.166327	# 51	Sel_NMFS_male_base_Ascending_normal_par_1_asc_width	29
+5.187386 	# 52	Sel_NMFS_male_base_Ascending_normal_par_2_size-at-1	(not_estd)
+4.39667 	# 53	Sel_NMFS_male_Ascending_normal_par_1_asc_width_block_group_2_block_1	30
+5.187386 	# 54	Sel_NMFS_male_Ascending_normal_par_2_size-at-1_block_group_2_block_1	(not_estd)
+
+4.532693 	 # 55	Sel_TCF_female_base_Logistic_mean	31
+1.602571   # 56	Sel_TCF_female_base_Logistic_cv	32
+
+4.40874716   # 57  Sel_SCF_female_base_Logistic_mean  33
+1.997317277  # 58  Sel_SCF_female_base_Logistic_cv  34
+4.293867646  # 59  Sel_SCF_female_Logistic_mean_block_group_6_block_1  35
+4.605227797  # 60  Sel_SCF_female_Logistic_mean_block_group_6_block_2  36
+1.165593251  # 61  Sel_SCF_female_Logistic_cv_block_group_6_block_1  37
+2.264466315  # 62  Sel_SCF_female_Logistic_cv_block_group_6_block_2  38
+
+2.876756213  # 63  Sel_RKF_female_base_Ascending_normal_par_1_asc_width  39
+4.940927882  # 64  Sel_RKF_female_base_Ascending_normal_par_2_size-at-1  (not_estd)
+2.852579735  # 65  Sel_RKF_female_Ascending_normal_par_1_asc_width_block_group_7_block_1  40
+2.856092614  # 66  Sel_RKF_female_Ascending_normal_par_1_asc_width_block_group_7_block_2  41
+4.872571869  # 67  Sel_RKF_female_Ascending_normal_par_2_size-at-1_block_group_7_block_1  (not_estd)
+4.894871927  # 68  Sel_RKF_female_Ascending_normal_par_2_size-at-1_block_group_7_block_2  (not_estd)
+
+3.848781291  # 69  Sel_GF_All_female_base_Logistic_mean  42
+2.090558154  # 70  Sel_GF_All_female_base_Logistic_cv  43
+4.741065423  # 71  Sel_GF_All_female_Logistic_mean_block_group_8_block_1  44
+4.506163983  # 72  Sel_GF_All_female_Logistic_mean_block_group_8_block_2  45
+3.712095925  # 73  Sel_GF_All_female_Logistic_cv_block_group_8_block_1  46
+2.690617512  # 74  Sel_GF_All_female_Logistic_cv_block_group_8_block_2  47
+
+3.689653 	# 75	Sel_NMFS_female_base_Ascending_normal_par_1_asc_width	(not_estd)
+4.866765 	# 76	Sel_NMFS_female_base_Ascending_normal_par_2_size-at-1	(not_estd)
+4.219825 	# 77	Sel_NMFS_female_Ascending_normal_par_1_asc_width_block_group_2_block_1	(not_estd)
+4.866765 	# 78	Sel_NMFS_female_Ascending_normal_par_2_size-at-1_block_group_2_block_1	(not_estd)
+
+4.934765653 	# 79	Ret_TCF_male_base_Logistic_mean	48
+0.313975374 	# 80	Ret_TCF_male_base_Logistic_cv	49
+4.930543525   # 81  Ret_TCF_male_Logistic_mean_block_group_4_block_1  50
+4.924641339   # 82  Ret_TCF_male_Logistic_mean_block_group_4_block_2  51
+4.828402651   # 83  Ret_TCF_male_Logistic_mean_block_group_4_block_3  52
+-0.064879746  # 84  Ret_TCF_male_Logistic_cv_block_group_4_block_1  53
+-0.688134639  # 85  Ret_TCF_male_Logistic_cv_block_group_4_block_2  54
+1.143866016   # 86  Ret_TCF_male_Logistic_cv_block_group_4_block_3  55
+
+-1.62560373810 	# 87	Log_fbar_TCF	(not_estd)
+-3.78275217992 	# 88	Log_fbar_SCF	(not_estd)
+-4.88422593414 	# 89	Log_fbar_RKF	(not_estd)
+-4.91015637838 	# 90	Log_fbar_GF_All	(not_estd)
+-10  # 91	Log_fbar_NMFS	(not_estd)
+-10  # 92	Log_fbar_BSFRF_SBS	(not_estd)
+
+-1.110686391  # 93  Log_fdev_TCF_year_1965_season_2  (not_estd)
+-0.905338702  # 94  Log_fdev_TCF_year_1966_season_2  (not_estd)
+0.939701846   # 95  Log_fdev_TCF_year_1967_season_2  (not_estd)
+1.524880796   # 96  Log_fdev_TCF_year_1968_season_2  (not_estd)
+2.714223702   # 97  Log_fdev_TCF_year_1969_season_2  (not_estd)
+4.012120424   # 98  Log_fdev_TCF_year_1970_season_2  (not_estd)
+2.831410594   # 99  Log_fdev_TCF_year_1971_season_2  (not_estd)
+0.95909327    # 100  Log_fdev_TCF_year_1972_season_2  (not_estd)
+-0.107274783  # 101  Log_fdev_TCF_year_1973_season_2  (not_estd)
+-0.252004363  # 102  Log_fdev_TCF_year_1974_season_2  (not_estd)
+-0.073448748  # 103  Log_fdev_TCF_year_1975_season_2  (not_estd)
+0.688348094   # 104  Log_fdev_TCF_year_1976_season_2  (not_estd)
+1.402309769   # 105  Log_fdev_TCF_year_1977_season_2  (not_estd)
+1.606396636   # 106  Log_fdev_TCF_year_1978_season_2  (not_estd)
+2.007209303   # 107  Log_fdev_TCF_year_1979_season_2  (not_estd)
+2.026006465   # 108  Log_fdev_TCF_year_1980_season_2  (not_estd)
+0.422322017   # 109  Log_fdev_TCF_year_1981_season_2  (not_estd)
+-0.781925668  # 110  Log_fdev_TCF_year_1982_season_2  (not_estd)
+-2.238000831  # 111  Log_fdev_TCF_year_1983_season_2  (not_estd)
+-0.917913321  # 112  Log_fdev_TCF_year_1984_season_2  (not_estd)
+-1.203697954  # 113  Log_fdev_TCF_year_1987_season_2  (not_estd)
+-0.211708547  # 114  Log_fdev_TCF_year_1988_season_2  (not_estd)
+0.959795307   # 115  Log_fdev_TCF_year_1989_season_2  (not_estd)
+1.736122951   # 116  Log_fdev_TCF_year_1990_season_2  (not_estd)
+2.085882454   # 117  Log_fdev_TCF_year_1991_season_2  (not_estd)
+2.385573825   # 118  Log_fdev_TCF_year_1992_season_2  (not_estd)
+1.929031482   # 119  Log_fdev_TCF_year_1993_season_2  (not_estd)
+1.148878985   # 120  Log_fdev_TCF_year_1994_season_2  (not_estd)
+0.543320838   # 121  Log_fdev_TCF_year_1995_season_2  (not_estd)
+0.485483271   # 122  Log_fdev_TCF_year_1996_season_2  (not_estd)
+-2.170462503  # 123  Log_fdev_TCF_year_2005_season_2  (not_estd)
+-1.541330518  # 124  Log_fdev_TCF_year_2006_season_2  (not_estd)
+-1.73494552   # 125  Log_fdev_TCF_year_2007_season_2  (not_estd)
+-1.881344915  # 126  Log_fdev_TCF_year_2008_season_2  (not_estd)
+-1.916992482  # 127  Log_fdev_TCF_year_2009_season_2  (not_estd)
+-1.75131414   # 128  Log_fdev_TCF_year_2013_season_2  (not_estd)
+-0.464839353  # 129  Log_fdev_TCF_year_2014_season_2  (not_estd)
+-0.186690663  # 130  Log_fdev_TCF_year_2015_season_2  (not_estd)
+-1.90941796   # 131  Log_fdev_TCF_year_2017_season_2  (not_estd)
+-1.743506504  # 132  Log_fdev_TCF_year_2018_season_2  (not_estd)
+-1.924947481  # 133  Log_fdev_TCF_year_2020_season_2  (not_estd)
+-2.245001011  # 134  Log_fdev_TCF_year_2021_season_2  (not_estd)
+-1.932785051  # 135  Log_fdev_TCF_year_2022_season_2  (not_estd)
+-2.115483418  # 136  Log_fdev_TCF_year_2023_season_2  (not_estd)
+-1.087051204  # 137  Log_fdev_TCF_year_2024_season_2  (not_estd)
+
+# 0  # 138  Log_fdev_SCF_year_1978_season_2  (not_estd)
+# 0  # 140  Log_fdev_SCF_year_1980_season_2  (not_estd)
+# 0  # 141  Log_fdev_SCF_year_1981_season_2  (not_estd)
+# 0  # 142  Log_fdev_SCF_year_1982_season_2  (not_estd)
+# 0  # 143  Log_fdev_SCF_year_1983_season_2  (not_estd)
+# 0  # 144  Log_fdev_SCF_year_1984_season_2  (not_estd)
+# 0  # 145  Log_fdev_SCF_year_1985_season_2  (not_estd)
+# 0  # 146  Log_fdev_SCF_year_1986_season_2  (not_estd)
+# 0  # 147  Log_fdev_SCF_year_1987_season_2  (not_estd)
+# 0  # 148  Log_fdev_SCF_year_1988_season_2  (not_estd)
+# 0  # 149  Log_fdev_SCF_year_1989_season_2  (not_estd)
+1.600610087   # 150  Log_fdev_SCF_year_1990_season_2  (not_estd)
+1.843508038   # 151  Log_fdev_SCF_year_1991_season_2  (not_estd)
+0.836657738   # 152  Log_fdev_SCF_year_1992_season_2  (not_estd)
+1.227035879   # 153  Log_fdev_SCF_year_1993_season_2  (not_estd)
+0.653526294   # 154  Log_fdev_SCF_year_1994_season_2  (not_estd)
+0.578751417   # 155  Log_fdev_SCF_year_1995_season_2  (not_estd)
+1.426660139   # 156  Log_fdev_SCF_year_1996_season_2  (not_estd)
+1.167753846   # 157  Log_fdev_SCF_year_1997_season_2  (not_estd)
+0.23633823    # 158  Log_fdev_SCF_year_1998_season_2  (not_estd)
+-1.369625386  # 159  Log_fdev_SCF_year_1999_season_2  (not_estd)
+-0.615839334  # 160  Log_fdev_SCF_year_2000_season_2  (not_estd)
+-0.158449277  # 161  Log_fdev_SCF_year_2001_season_2  (not_estd)
+-1.448509095  # 162  Log_fdev_SCF_year_2002_season_2  (not_estd)
+-2.56727612   # 163  Log_fdev_SCF_year_2003_season_2  (not_estd)
+-1.887227443  # 164  Log_fdev_SCF_year_2004_season_2  (not_estd)
+0.078219775   # 165  Log_fdev_SCF_year_2005_season_2  (not_estd)
+0.209636752   # 166  Log_fdev_SCF_year_2006_season_2  (not_estd)
+0.253506407   # 167  Log_fdev_SCF_year_2007_season_2  (not_estd)
+-0.377816538  # 168  Log_fdev_SCF_year_2008_season_2  (not_estd)
+-0.001874158  # 169  Log_fdev_SCF_year_2009_season_2  (not_estd)
+0.098810549   # 170  Log_fdev_SCF_year_2010_season_2  (not_estd)
+0.654636351   # 171  Log_fdev_SCF_year_2011_season_2  (not_estd)
+0.366060482   # 172  Log_fdev_SCF_year_2012_season_2  (not_estd)
+0.300871343   # 173  Log_fdev_SCF_year_2013_season_2  (not_estd)
+1.117660137   # 174  Log_fdev_SCF_year_2014_season_2  (not_estd)
+0.910661338   # 175  Log_fdev_SCF_year_2015_season_2  (not_estd)
+0.739510923   # 176  Log_fdev_SCF_year_2016_season_2  (not_estd)
+0.123942295   # 177  Log_fdev_SCF_year_2017_season_2  (not_estd)
+0.134988127   # 178  Log_fdev_SCF_year_2018_season_2  (not_estd)
+0.458364278   # 179  Log_fdev_SCF_year_2019_season_2  (not_estd)
+-1.517510724  # 180  Log_fdev_SCF_year_2020_season_2  (not_estd)
+-2.195493977  # 181  Log_fdev_SCF_year_2021_season_2  (not_estd)
+-2.878088374  # 182  Log_fdev_SCF_year_2024_season_2  (not_estd)
+
+#  0  #  183  Log_fdev_RKF_year_1953_season_2  (not_estd)
+#  0  #  184  Log_fdev_RKF_year_1954_season_2  (not_estd)
+#  0  #  185  Log_fdev_RKF_year_1955_season_2  (not_estd)
+#  0  #  186  Log_fdev_RKF_year_1956_season_2  (not_estd)
+#  0  #  187  Log_fdev_RKF_year_1957_season_2  (not_estd)
+#  0  #  188  Log_fdev_RKF_year_1958_season_2  (not_estd)
+#  0  #  189  Log_fdev_RKF_year_1959_season_2  (not_estd)
+#  0  #  190  Log_fdev_RKF_year_1960_season_2  (not_estd)
+#  0  #  191  Log_fdev_RKF_year_1961_season_2  (not_estd)
+#  0  #  192  Log_fdev_RKF_year_1962_season_2  (not_estd)
+#  0  #  193  Log_fdev_RKF_year_1963_season_2  (not_estd)
+#  0  #  194  Log_fdev_RKF_year_1964_season_2  (not_estd)
+#  0  #  195  Log_fdev_RKF_year_1965_season_2  (not_estd)
+#  0  #  196  Log_fdev_RKF_year_1966_season_2  (not_estd)
+#  0  #  197  Log_fdev_RKF_year_1967_season_2  (not_estd)
+#  0  #  198  Log_fdev_RKF_year_1968_season_2  (not_estd)
+#  0  #  199  Log_fdev_RKF_year_1969_season_2  (not_estd)
+#  0  #  200  Log_fdev_RKF_year_1970_season_2  (not_estd)
+#  0  #  201  Log_fdev_RKF_year_1971_season_2  (not_estd)
+#  0  #  202  Log_fdev_RKF_year_1972_season_2  (not_estd)
+#  0  #  203  Log_fdev_RKF_year_1973_season_2  (not_estd)
+#  0  #  204  Log_fdev_RKF_year_1974_season_2  (not_estd)
+#  0  #  205  Log_fdev_RKF_year_1975_season_2  (not_estd)
+#  0  #  206  Log_fdev_RKF_year_1976_season_2  (not_estd)
+#  0  #  207  Log_fdev_RKF_year_1977_season_2  (not_estd)
+#  0  #  208  Log_fdev_RKF_year_1978_season_2  (not_estd)
+#  0  #  209  Log_fdev_RKF_year_1979_season_2  (not_estd)
+#  0  #  210  Log_fdev_RKF_year_1980_season_2  (not_estd)
+#  0  #  211  Log_fdev_RKF_year_1981_season_2  (not_estd)
+#  0  #  212  Log_fdev_RKF_year_1982_season_2  (not_estd)
+#  0  #  213  Log_fdev_RKF_year_1984_season_2  (not_estd)
+#  0  #  214  Log_fdev_RKF_year_1985_season_2  (not_estd)
+#  0  #  215  Log_fdev_RKF_year_1986_season_2  (not_estd)
+#  0  #  216  Log_fdev_RKF_year_1987_season_2  (not_estd)
+#  0  #  217  Log_fdev_RKF_year_1988_season_2  (not_estd)
+#  0  #  218  Log_fdev_RKF_year_1989_season_2  (not_estd)
+4.006895299   # 219  Log_fdev_RKF_year_1990_season_2  (not_estd)
+3.700031346   # 220  Log_fdev_RKF_year_1991_season_2  (not_estd)
+3.46565052    # 221  Log_fdev_RKF_year_1992_season_2  (not_estd)
+4.372835081   # 222  Log_fdev_RKF_year_1993_season_2  (not_estd)
+2.413507421   # 223  Log_fdev_RKF_year_1996_season_2  (not_estd)
+1.154506899   # 224  Log_fdev_RKF_year_1997_season_2  (not_estd)
+0.900927139   # 225  Log_fdev_RKF_year_1998_season_2  (not_estd)
+0.487391291   # 226  Log_fdev_RKF_year_1999_season_2  (not_estd)
+0.271845328   # 227  Log_fdev_RKF_year_2000_season_2  (not_estd)
+-0.309952641  # 228  Log_fdev_RKF_year_2001_season_2  (not_estd)
+-0.119003784  # 229  Log_fdev_RKF_year_2002_season_2  (not_estd)
+-0.419158155  # 230  Log_fdev_RKF_year_2003_season_2  (not_estd)
+-0.744164485  # 231  Log_fdev_RKF_year_2004_season_2  (not_estd)
+-1.109638344  # 232  Log_fdev_RKF_year_2005_season_2  (not_estd)
+-1.604754089  # 233  Log_fdev_RKF_year_2006_season_2  (not_estd)
+-1.067964179  # 234  Log_fdev_RKF_year_2007_season_2  (not_estd)
+0.323942881   # 235  Log_fdev_RKF_year_2008_season_2  (not_estd)
+-0.159127256  # 236  Log_fdev_RKF_year_2009_season_2  (not_estd)
+-1.838179112  # 237  Log_fdev_RKF_year_2010_season_2  (not_estd)
+-2.280249201  # 238  Log_fdev_RKF_year_2011_season_2  (not_estd)
+-1.231965113  # 239  Log_fdev_RKF_year_2012_season_2  (not_estd)
+-0.173651748  # 240  Log_fdev_RKF_year_2013_season_2  (not_estd)
+0.496890114   # 241  Log_fdev_RKF_year_2014_season_2  (not_estd)
+0.064253312   # 242  Log_fdev_RKF_year_2015_season_2  (not_estd)
+0.012883589   # 243  Log_fdev_RKF_year_2016_season_2  (not_estd)
+0.223650502   # 244  Log_fdev_RKF_year_2017_season_2  (not_estd)
+-0.470947258  # 245  Log_fdev_RKF_year_2018_season_2  (not_estd)
+-1.690754501  # 246  Log_fdev_RKF_year_2019_season_2  (not_estd)
+-2.574487311  # 247  Log_fdev_RKF_year_2020_season_2  (not_estd)
+-2.729992461  # 248  Log_fdev_RKF_year_2023_season_2  (not_estd)
+-3.371221085  # 249  Log_fdev_RKF_year_2024_season_2  (not_estd)
+
+1.328863955   # 250  Log_fdev_GF_All_year_1973_season_2  (not_estd)
+1.583589987   # 251  Log_fdev_GF_All_year_1974_season_2  (not_estd)
+0.783464721   # 252  Log_fdev_GF_All_year_1975_season_2  (not_estd)
+0.389071518   # 253  Log_fdev_GF_All_year_1976_season_2  (not_estd)
+0.037432061   # 254  Log_fdev_GF_All_year_1977_season_2  (not_estd)
+-0.1575294    # 255  Log_fdev_GF_All_year_1978_season_2  (not_estd)
+0.331288316   # 256  Log_fdev_GF_All_year_1979_season_2  (not_estd)
+-0.137987297  # 257  Log_fdev_GF_All_year_1980_season_2  (not_estd)
+-0.198682656  # 258  Log_fdev_GF_All_year_1981_season_2  (not_estd)
+-1.035658774  # 259  Log_fdev_GF_All_year_1982_season_2  (not_estd)
+-0.546512576  # 260  Log_fdev_GF_All_year_1983_season_2  (not_estd)
+-0.241383914  # 261  Log_fdev_GF_All_year_1984_season_2  (not_estd)
+-0.635748267  # 262  Log_fdev_GF_All_year_1985_season_2  (not_estd)
+-0.45034564   # 263  Log_fdev_GF_All_year_1986_season_2  (not_estd)
+0.255407271   # 264  Log_fdev_GF_All_year_1987_season_2  (not_estd)
+-0.238032441  # 265  Log_fdev_GF_All_year_1988_season_2  (not_estd)
+0.17308577    # 266  Log_fdev_GF_All_year_1989_season_2  (not_estd)
+0.585555967   # 267  Log_fdev_GF_All_year_1990_season_2  (not_estd)
+1.355327168   # 268  Log_fdev_GF_All_year_1991_season_2  (not_estd)
+1.605363788   # 269  Log_fdev_GF_All_year_1992_season_2  (not_estd)
+1.308920223   # 270  Log_fdev_GF_All_year_1993_season_2  (not_estd)
+1.734942473   # 271  Log_fdev_GF_All_year_1994_season_2  (not_estd)
+1.638629321   # 272  Log_fdev_GF_All_year_1995_season_2  (not_estd)
+1.828189129   # 273  Log_fdev_GF_All_year_1996_season_2  (not_estd)
+1.534528367   # 274  Log_fdev_GF_All_year_1997_season_2  (not_estd)
+1.399582533   # 275  Log_fdev_GF_All_year_1998_season_2  (not_estd)
+0.880022934   # 276  Log_fdev_GF_All_year_1999_season_2  (not_estd)
+0.920941989   # 277  Log_fdev_GF_All_year_2000_season_2  (not_estd)
+1.148364716   # 278  Log_fdev_GF_All_year_2001_season_2  (not_estd)
+0.438212239   # 279  Log_fdev_GF_All_year_2002_season_2  (not_estd)
+-0.107621738  # 280  Log_fdev_GF_All_year_2003_season_2  (not_estd)
+0.180047095   # 281  Log_fdev_GF_All_year_2004_season_2  (not_estd)
+-0.154895842  # 282  Log_fdev_GF_All_year_2005_season_2  (not_estd)
+-0.186328157  # 283  Log_fdev_GF_All_year_2006_season_2  (not_estd)
+-0.098044967  # 284  Log_fdev_GF_All_year_2007_season_2  (not_estd)
+-0.438439642  # 285  Log_fdev_GF_All_year_2008_season_2  (not_estd)
+-0.810203082  # 286  Log_fdev_GF_All_year_2009_season_2  (not_estd)
+-1.143617274  # 287  Log_fdev_GF_All_year_2010_season_2  (not_estd)
+-0.82932364   # 288  Log_fdev_GF_All_year_2011_season_2  (not_estd)
+-1.305809377  # 289  Log_fdev_GF_All_year_2012_season_2  (not_estd)
+-0.742419203  # 290  Log_fdev_GF_All_year_2013_season_2  (not_estd)
+-0.666611349  # 291  Log_fdev_GF_All_year_2014_season_2  (not_estd)
+-0.805722977  # 292  Log_fdev_GF_All_year_2015_season_2  (not_estd)
+-0.708936373  # 293  Log_fdev_GF_All_year_2016_season_2  (not_estd)
+-1.267255012  # 294  Log_fdev_GF_All_year_2017_season_2  (not_estd)
+-0.955206762  # 295  Log_fdev_GF_All_year_2018_season_2  (not_estd)
+-0.827108152  # 296  Log_fdev_GF_All_year_2019_season_2  (not_estd)
+-0.917014828  # 297  Log_fdev_GF_All_year_2020_season_2  (not_estd)
+-0.985374268  # 298  Log_fdev_GF_All_year_2021_season_2  (not_estd)
+-1.340153009  # 299  Log_fdev_GF_All_year_2022_season_2  (not_estd)
+-1.609999782  # 300  Log_fdev_GF_All_year_2023_season_2  (not_estd)
+-1.898865211  # 301  Log_fdev_GF_All_year_2024_season_2  (not_estd)
+
+0 	# 302	Log_fdev_NMFS	(not estd)
+0 	# 303	Log_fdev_BSFRF_SBS	(not estd)
+
+-2.79828986918 	# 304	Log_foff_TCF	(not_estd)
+-2.70933289535 	# 305	Log_foff_SCF	(not_estd)
+-2.37408215713 	# 306	Log_foff_RKF	(not_estd)
+-0.942311589894 # 307	Log_foff_GF_All	(not_estd)
+-10 	  # 308	Log_foff_NMFS	(not_estd)
+-10 	  # 309	Log_foff_BSFRF_SBS	(not_estd)
+
+0 	# 310	Log_fdov_TCF	(not estd)
+0 	# 311	Log_fdov_SCF	(not estd)
+0 	# 312	Log_fdov_RKF	(not estd)
+0 	# 313	Log_fdov_GF_All	(not estd)
+0 	# 314	Log_fdov_NMFS	(not estd)
+0 	# 315	Log_fdov_BSFRF_SBS	(not estd)
+
+-0.54190262   #   -0.541903      #    316   Rec_dev_est_1948  56 
+-0.54101588   #   -0.541016      #    317   Rec_dev_est_1949  57 
+-0.538940389  #   -0.53894       #    318   Rec_dev_est_1950  58 
+-0.535274519  #   -0.535275      #    319   Rec_dev_est_1951  59 
+-0.529483661  #   -0.529484      #    320   Rec_dev_est_1952  60 
+-0.520856861  #   -0.520857      #    321   Rec_dev_est_1953  61 
+-0.508449953  #   -0.50845       #    322   Rec_dev_est_1954  62 
+-0.491017235  #   -0.491017      #    323   Rec_dev_est_1955  63 
+-0.466942795  #   -0.466943      #    324   Rec_dev_est_1956  64 
+-0.4341774    #   -0.434177      #    325   Rec_dev_est_1957  65 
+-0.390161042  #   -0.390161      #    326   Rec_dev_est_1958  66 
+-0.331435397  #   -0.331435      #    327   Rec_dev_est_1959  67 
+-0.252435199  #   -0.252435      #    328   Rec_dev_est_1960  68 
+-0.143750117  #   -0.14375       #    329   Rec_dev_est_1961  69 
+0.010939897   #   0.0109399      #    330   Rec_dev_est_1962  70 
+0.240077413   #   0.240077       #    331   Rec_dev_est_1963  71 
+0.582901512   #   0.582902       #    332   Rec_dev_est_1964  72 
+1.028298071   #   1.0283         #    333   Rec_dev_est_1965  73 
+1.4551685     #   1.45517        #    334   Rec_dev_est_1966  74 
+1.565367876   #   1.56537        #    335   Rec_dev_est_1967  75 
+1.088871279   #   1.08887        #    336   Rec_dev_est_1968  76 
+0.605940271   #   0.60594        #    337   Rec_dev_est_1969  77 
+0.365483164   #   0.365483        #    338   Rec_dev_est_1970  78 
+-0.142406839  #   -0.142407      #    339   Rec_dev_est_1971  79 
+-0.494530389  #   -0.49453        #    340   Rec_dev_est_1972  80 
+-0.080267688  #   -0.0802677      #    341   Rec_dev_est_1973  81 
+1.323009617  #   1.32301        #    342   Rec_dev_est_1974  82 
+1.954771228  #   1.95477        #    343   Rec_dev_est_1975  83 
+1.528284172  #   1.52828        #    344   Rec_dev_est_1976  84 
+0.35250128  #   0.352501        #    345   Rec_dev_est_1977  85 
+-0.120099745  #   -0.1201        #    346   Rec_dev_est_1978  86 
+-0.303674284  #   -0.303674      #    347   Rec_dev_est_1979  87 
+-0.064565767  #   -0.0645658      #    348   Rec_dev_est_1980  88 
+-0.185801806  #   -0.185802      #    349   Rec_dev_est_1981  89 
+1.007691808  #   1.00769        #    350   Rec_dev_est_1982  90 
+0.743677715  #   0.743678        #    351   Rec_dev_est_1983  91 
+0.838353613  #   0.838354        #    352   Rec_dev_est_1984  92 
+0.972240021  #   0.97224        #    353   Rec_dev_est_1985  93 
+0.622730177  #   0.62273        #    354   Rec_dev_est_1986  94 
+0.253223363  #   0.253223        #    355   Rec_dev_est_1987  95 
+-0.542207758  #   -0.542208      #    356   Rec_dev_est_1988  96 
+-1.149987586  #   -1.14999        #    357   Rec_dev_est_1989  97 
+-1.47907513  #   -1.47908        #    358   Rec_dev_est_1990  98 
+-1.355805302  #   -1.35581        #    359   Rec_dev_est_1991  99 
+-1.312514008  #   -1.31251        #    360   Rec_dev_est_1992  100 
+-1.193774588  #   -1.19377        #    361   Rec_dev_est_1993  101 
+-0.678198102  #   -0.678198      #    362   Rec_dev_est_1994  102 
+-0.952395677  #   -0.952396      #    363   Rec_dev_est_1995  103 
+-0.007353915  #  -0.00735391  #    364   Rec_dev_est_1996  104 
+-0.987753143  #   -0.987753      #    365   Rec_dev_est_1997  105 
+0.564318739  #   0.564319        #    366   Rec_dev_est_1998  106 
+-0.576621345  #   -0.576621      #    367   Rec_dev_est_1999  107 
+0.916469544  #   0.91647        #    368   Rec_dev_est_2000  108 
+-0.194808077  #   -0.194808      #    369   Rec_dev_est_2001  109 
+1.003387722  #   1.00339        #    370   Rec_dev_est_2002  110 
+0.344968587  #   0.344969        #    371   Rec_dev_est_2003  111 
+-0.662688151  #   -0.662688      #    372   Rec_dev_est_2004  112 
+-1.199992192  #   -1.19999        #    373   Rec_dev_est_2005  113 
+-0.605323078  #   -0.605323      #    374   Rec_dev_est_2006  114 
+0.126428537  #   0.126429        #    375   Rec_dev_est_2007  115 
+1.264704016  #   1.2647          #    376   Rec_dev_est_2008  116 
+0.233686406  #   0.233686        #    377   Rec_dev_est_2009  117 
+-0.520132157  #   -0.520132      #    378   Rec_dev_est_2010  118 
+-1.669032194  #   -1.66903        #    379   Rec_dev_est_2011  119 
+-0.809730519  #   -0.809731      #    380   Rec_dev_est_2012  120 
+-1.536160001  #   -1.53616        #    381   Rec_dev_est_2013  121 
+-1.340136888  #   -1.34014        #    382   Rec_dev_est_2014  122 
+-0.687563882  #   -0.687564      #    383   Rec_dev_est_2015  123 
+0.761848561  #   0.761849        #    384   Rec_dev_est_2016  124 
+0.158519584  #   0.15852        #    385   Rec_dev_est_2017  125 
+0.409047275  #   0.409047        #    386   Rec_dev_est_2018  126 
+-0.734575721  #   -0.734576      #    387   Rec_dev_est_2019  127 
+1.347188795  #   1.34719        #    388   Rec_dev_est_2020  128 
+1.538913115  #   1.53891        #    389   Rec_dev_est_2021  129 
+1.513736277  #   1.51374        #    390   Rec_dev_est_2022  130 
+0.720857061  #   0.720857        #    391   Rec_dev_est_2023  131 
+0.369413804  #   0.369414        #    392   Rec_dev_est_2024  132 
+0 	# 393	 Logit_rec_prop_est_1948	(not_estd)
+0 	# 394	 Logit_rec_prop_est_1949	(not_estd)
+0 	# 395	 Logit_rec_prop_est_1950	(not_estd)
+0 	# 396	 Logit_rec_prop_est_1951	(not_estd)
+0 	# 397	 Logit_rec_prop_est_1952	(not_estd)
+0 	# 398	 Logit_rec_prop_est_1953	(not_estd)
+0 	# 399	 Logit_rec_prop_est_1954	(not_estd)
+0 	# 400	 Logit_rec_prop_est_1955	(not_estd)
+0 	# 401	 Logit_rec_prop_est_1956	(not_estd)
+0 	# 402	 Logit_rec_prop_est_1957	(not_estd)
+0 	# 403	 Logit_rec_prop_est_1958	(not_estd)
+0 	# 404	 Logit_rec_prop_est_1959	(not_estd)
+0 	# 405	 Logit_rec_prop_est_1960	(not_estd)
+0 	# 406	 Logit_rec_prop_est_1961	(not_estd)
+0 	# 407	 Logit_rec_prop_est_1962	(not_estd)
+0 	# 408	 Logit_rec_prop_est_1963	(not_estd)
+0 	# 409	 Logit_rec_prop_est_1964	(not_estd)
+0 	# 410	 Logit_rec_prop_est_1965	(not_estd)
+0 	# 411	 Logit_rec_prop_est_1966	(not_estd)
+0 	# 412	 Logit_rec_prop_est_1967	(not_estd)
+0 	# 413	 Logit_rec_prop_est_1968	(not_estd)
+0 	# 414	 Logit_rec_prop_est_1969	(not_estd)
+0 	# 415	 Logit_rec_prop_est_1970	(not_estd)
+0 	# 416	 Logit_rec_prop_est_1971	(not_estd)
+0 	# 417	 Logit_rec_prop_est_1972	(not_estd)
+0 	# 418	 Logit_rec_prop_est_1973	(not_estd)
+0 	# 419	 Logit_rec_prop_est_1974	(not_estd)
+0 	# 420	 Logit_rec_prop_est_1975	(not_estd)
+0 	# 421	 Logit_rec_prop_est_1976	(not_estd)
+0 	# 422	 Logit_rec_prop_est_1977	(not_estd)
+0 	# 423	 Logit_rec_prop_est_1978	(not_estd)
+0 	# 424	 Logit_rec_prop_est_1979	(not_estd)
+0 	# 425	 Logit_rec_prop_est_1980	(not_estd)
+0 	# 426	 Logit_rec_prop_est_1981	(not_estd)
+0 	# 427	 Logit_rec_prop_est_1982	(not_estd)
+0 	# 428	 Logit_rec_prop_est_1983	(not_estd)
+0 	# 429	 Logit_rec_prop_est_1984	(not_estd)
+0 	# 430	 Logit_rec_prop_est_1985	(not_estd)
+0 	# 431	 Logit_rec_prop_est_1986	(not_estd)
+0 	# 432	 Logit_rec_prop_est_1987	(not_estd)
+0 	# 433	 Logit_rec_prop_est_1988	(not_estd)
+0 	# 434	 Logit_rec_prop_est_1989	(not_estd)
+0 	# 435	 Logit_rec_prop_est_1990	(not_estd)
+0 	# 436	 Logit_rec_prop_est_1991	(not_estd)
+0 	# 437	 Logit_rec_prop_est_1992	(not_estd)
+0 	# 438	 Logit_rec_prop_est_1993	(not_estd)
+0 	# 439	 Logit_rec_prop_est_1994	(not_estd)
+0 	# 440	 Logit_rec_prop_est_1995	(not_estd)
+0 	# 441	 Logit_rec_prop_est_1996	(not_estd)
+0 	# 442	 Logit_rec_prop_est_1997	(not_estd)
+0 	# 443	 Logit_rec_prop_est_1998	(not_estd)
+0 	# 444	 Logit_rec_prop_est_1999	(not_estd)
+0 	# 445	 Logit_rec_prop_est_2000	(not_estd)
+0 	# 446	 Logit_rec_prop_est_2001	(not_estd)
+0 	# 447	 Logit_rec_prop_est_2002	(not_estd)
+0 	# 448	 Logit_rec_prop_est_2003	(not_estd)
+0 	# 449	 Logit_rec_prop_est_2004	(not_estd)
+0 	# 450	 Logit_rec_prop_est_2005	(not_estd)
+0 	# 451	 Logit_rec_prop_est_2006	(not_estd)
+0 	# 452	 Logit_rec_prop_est_2007	(not_estd)
+0 	# 453	 Logit_rec_prop_est_2008	(not_estd)
+0 	# 454	 Logit_rec_prop_est_2009	(not_estd)
+0 	# 455	 Logit_rec_prop_est_2010	(not_estd)
+0 	# 456	 Logit_rec_prop_est_2011	(not_estd)
+0 	# 457	 Logit_rec_prop_est_2012	(not_estd)
+0 	# 458	 Logit_rec_prop_est_2013	(not_estd)
+0 	# 459	 Logit_rec_prop_est_2014	(not_estd)
+0 	# 460	 Logit_rec_prop_est_2015	(not_estd)
+0 	# 461	 Logit_rec_prop_est_2016	(not_estd)
+0 	# 462	 Logit_rec_prop_est_2017	(not_estd)
+0 	# 463	 Logit_rec_prop_est_2018	(not_estd)
+0 	# 464	 Logit_rec_prop_est_2019	(not_estd)
+0 	# 465	 Logit_rec_prop_est_2020	(not_estd)
+0 	# 466	 Logit_rec_prop_est_2021	(not_estd)
+0 	# 467	 Logit_rec_prop_est_2022	(not_estd)
+0 	# 468	 Logit_rec_prop_est_2023	(not_estd)
+0 	# 469	 Logit_rec_prop_est_2024	(not_estd)
+
+0 	# 470	Log_vn_size_comp_1	(not_estd)
+0 	# 471	Log_vn_size_comp_2	(not_estd)
+0 	# 472	Log_vn_size_comp_3	(not_estd)
+0 	# 473	Log_vn_size_comp_4	(not_estd)
+0 	# 474	Log_vn_size_comp_5	(not_estd)
+0 	# 475	Log_vn_size_comp_6	(not_estd)
+0 	# 476	Log_vn_size_comp_7	(not_estd)
+0 	# 477	Log_vn_size_comp_8	(not_estd)
+0 	# 478	Log_vn_size_comp_9	(not_estd)
+0 	# 479	Log_vn_size_comp_10	(not_estd)
+0 	# 480	Log_vn_size_comp_11	(not_estd)
+0 	# 481	Log_vn_size_comp_12	(not_estd)
+10.68 	# 482	Log_vn_size_comp_13	(not_estd)
+10.99 	# 483	Log_vn_size_comp_14	(not_estd)
+10.99 	# 484	Log_vn_size_comp_15	(not_estd)
+
+0.4446768 	# 485	Survey_q_survey_1	133
+0.5171616 	# 486	Survey_q_survey_2	134
+0.329827  	# 487	Survey_q_survey_3	135
+0.2769753 	# 488	Survey_q_survey_4	136
+1.0000000 	# 489	Survey_q_survey_5	(not_estd)
+
+-9.21034 	# 490	Log_add_cvt_survey_1	(not_estd)
+-9.21034 	# 491	Log_add_cvt_survey_2	(not_estd)
+-9.21034 	# 492	Log_add_cvt_survey_3	(not_estd)
+
+0.117505722   # 493  Selectivity_selectivity_male_TCF_par_1_dev_for_year_1991  137
+0.094484485   # 494  Selectivity_selectivity_male_TCF_par_1_dev_for_year_1992  138
+0.13115151    # 495  Selectivity_selectivity_male_TCF_par_1_dev_for_year_1993  139
+0.131153667   # 496  Selectivity_selectivity_male_TCF_par_1_dev_for_year_1994  140
+0.105378858   # 497  Selectivity_selectivity_male_TCF_par_1_dev_for_year_1995  141
+0.208597938   # 498  Selectivity_selectivity_male_TCF_par_1_dev_for_year_1996  142
+-0.024165229  # 499  Selectivity_selectivity_male_TCF_par_1_dev_for_year_2005  143
+-0.007485596  # 500  Selectivity_selectivity_male_TCF_par_1_dev_for_year_2006  144
+-0.074969144  # 501  Selectivity_selectivity_male_TCF_par_1_dev_for_year_2007  145
+0.042513198   # 502  Selectivity_selectivity_male_TCF_par_1_dev_for_year_2008  146
+0.158420884   # 503  Selectivity_selectivity_male_TCF_par_1_dev_for_year_2009  147
+-0.003785322  # 504  Selectivity_selectivity_male_TCF_par_1_dev_for_year_2013  148
+-0.05400589   # 505  Selectivity_selectivity_male_TCF_par_1_dev_for_year_2014  149
+-0.089574591  # 506  Selectivity_selectivity_male_TCF_par_1_dev_for_year_2015  150
+-0.060696814  # 507  Selectivity_selectivity_male_TCF_par_1_dev_for_year_2017  151
+-0.104698015  # 508  Selectivity_selectivity_male_TCF_par_1_dev_for_year_2018  152
+-0.155272489  # 509  Selectivity_selectivity_male_TCF_par_1_dev_for_year_2020  153
+-0.138770212  # 510  Selectivity_selectivity_male_TCF_par_1_dev_for_year_2021  154
+-0.123832199  # 511  Selectivity_selectivity_male_TCF_par_1_dev_for_year_2022  155
+-0.072557623  # 512  Selectivity_selectivity_male_TCF_par_1_dev_for_year_2023  156
+-0.0793537    # 513  Selectivity_selectivity_male_TCF_par_1_dev_for_year_2024  157

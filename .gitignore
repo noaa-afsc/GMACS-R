@@ -1,0 +1,18 @@
+.DS_Store
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+
+# Local/generated model outputs
+build/
+*.log
+*.tmp
+
+# Quarto render output
+bbrkc_rtmb_port_steps.html
+bbrkc_rtmb_port_steps_files/
+
+# Archive/system byproducts
+__MACOSX/
+*.zip
