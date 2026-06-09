@@ -53,6 +53,8 @@ source("R/read_gmacs_tanner.R")
 
 tanner <- read_tanner_inputs("examples/tanners")
 validate_tanner_inputs(tanner)
+has_tanner_index_fit <- !is.null(tanner$admb_reference$index_fit)
+has_tanner_size_fit <- !is.null(tanner$admb_reference$size_fit)
 ```
 
 ```{r}
@@ -189,11 +191,25 @@ of the Tanner-equivalent names listed above, to `examples/tanners`. Once those
 files are present, this page will expose the ADMB likelihood, fit, and
 selectivity targets needed to build Tanner parity checks.
 
+```{r}
+if (!has_tanner_index_fit || !has_tanner_size_fit) {
+  data.frame(
+    diagnostic = c("index observed-vs-predicted", "size observed-vs-predicted"),
+    status = c(
+      if (has_tanner_index_fit) "available" else "missing ADMB Index_fit_summary",
+      if (has_tanner_size_fit) "available" else "missing ADMB Size_fit_summary"
+    ),
+    required_file = "Tanner Gmacsall.out or equivalent",
+    row.names = NULL
+  )
+}
+```
+
 ## Index Diagnostics
 
 When Tanner ADMB fit summaries are present, the figure below shows observed and
-predicted index fits from `Gmacsall.out`. Otherwise it shows the observed input
-index series that the future Tanner RTMB port should match.
+predicted index fits from `Gmacsall.out`. In the current repository, Tanner
+ADMB report output is not present, so this figure is observed-only.
 
 ```{r}
 #| label: fig-tanner-index-observations
@@ -242,7 +258,7 @@ if (!is.null(tanner$admb_reference$index_fit)) {
 } else {
   index_obs <- tanner$data$survey_observations
   series_ids <- sort(unique(index_obs$series))
-  old_par <- par(mfrow = c(ceiling(length(series_ids) / 2), 2), mar = c(3, 3, 2, 1), oma = c(1, 1, 0, 0))
+  old_par <- par(mfrow = c(ceiling(length(series_ids) / 2), 2), mar = c(3, 3, 2, 1), oma = c(0, 0, 2, 0))
   for (series in series_ids) {
     x <- index_obs[index_obs$series == series, ]
     plot(x$year, x$obs, type = "b", pch = 16, col = "#1b6da8",
@@ -250,6 +266,7 @@ if (!is.null(tanner$admb_reference$index_fit)) {
          bty = "l")
     grid(col = "grey88")
   }
+  mtext("Observed only: Tanner ADMB fit summaries are not present", outer = TRUE, line = 0.4)
   par(old_par)
 }
 ```
@@ -259,7 +276,8 @@ if (!is.null(tanner$admb_reference$index_fit)) {
 When Tanner ADMB size-fit summaries are present, the panels compare observed
 and predicted compositions from `Gmacsall.out`. Otherwise they show observed
 input compositions for recent rows from the first four size-composition
-dataframes.
+dataframes. In the current repository, Tanner ADMB report output is not
+present, so this figure is observed-only.
 
 ```{r}
 #| label: fig-tanner-size-composition-observations
@@ -310,7 +328,7 @@ if (!is.null(tanner$admb_reference$size_fit)) {
 } else {
   size_obs <- tanner$data$size_comp_observations
   series_ids <- sort(unique(size_obs$series))[1:4]
-  old_par <- par(mfrow = c(2, 2), mar = c(3, 3, 2, 1), oma = c(1, 1, 0, 0))
+  old_par <- par(mfrow = c(2, 2), mar = c(3, 3, 2, 1), oma = c(0, 0, 2, 0))
   for (series in series_ids) {
     x <- size_obs[size_obs$series == series, ]
     x <- x[order(x$year), ]
@@ -323,6 +341,7 @@ if (!is.null(tanner$admb_reference$size_fit)) {
          bty = "l")
     grid(col = "grey88")
   }
+  mtext("Observed only: Tanner ADMB size-fit summary is not present", outer = TRUE, line = 0.4)
   par(old_par)
 }
 ```
