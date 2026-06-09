@@ -175,7 +175,7 @@ for (series in series_ids) {
   bins <- grep("^bin_", names(row), value = TRUE)
   values <- as.numeric(row[1, bins])
   values <- values / sum(values)
-  plot(seq_along(values), values, type = "h", lwd = 3, col = "#1b6da8",
+  barplot(values, col = "#1b6da8", border = NA,
        xlab = "", ylab = "", main = paste(row$fleet, row$sex, row$catch_type, row$year),
        bty = "l")
   grid(col = "grey88")

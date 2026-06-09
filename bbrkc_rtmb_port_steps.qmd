@@ -1670,19 +1670,46 @@ index_fit <- index_fit_to_data_frame(rtmb_model, rtmb_data)
 survey_obs <- rtmb_data$survey$data
 index_fit$observed <- survey_obs$obs
 series_ids <- sort(unique(index_fit$series))
-old_par <- par(mfrow = c(ceiling(length(series_ids) / 2), 2), mar = c(3, 3, 2, 1), oma = c(1, 1, 0, 0))
+panel_rows <- ceiling(length(series_ids) / 2)
+panel_slots <- panel_rows * 2
+old_par <- par(
+  mar = c(3, 3, 2, 1),
+  oma = c(0, 0, 0, 0)
+)
+layout(
+  rbind(matrix(seq_len(panel_slots), ncol = 2, byrow = TRUE), rep(panel_slots + 1, 2)),
+  heights = c(rep(1, panel_rows), 0.16)
+)
 for (series in series_ids) {
   x <- index_fit[index_fit$series == series, ]
   ylim <- range(c(x$observed, x$predicted), finite = TRUE)
   plot(x$year, x$observed, pch = 16, col = "#1b6da8", ylim = ylim,
        xlab = "", ylab = "", main = paste("Series", series), bty = "l")
-  lines(x$year, x$predicted, lwd = 2, col = "#c43c39")
+  line_keys <- unique(x[c("fleet", "season", "sex", "maturity")])
+  for (line_i in seq_len(nrow(line_keys))) {
+    keep <- rep(TRUE, nrow(x))
+    for (key_name in names(line_keys)) {
+      keep <- keep & x[[key_name]] == line_keys[[key_name]][line_i]
+    }
+    line_x <- x[keep, ]
+    line_x <- line_x[order(line_x$year), ]
+    lines(line_x$year, line_x$predicted, lwd = 2, col = "#c43c39")
+    points(line_x$year, line_x$predicted, pch = 1, col = "#c43c39")
+  }
   grid(col = "grey88")
 }
-par(old_par)
-legend("bottom", inset = -0.02, xpd = NA, horiz = TRUE, bty = "n",
+if (length(series_ids) < panel_slots) {
+  for (unused in seq_len(panel_slots - length(series_ids))) {
+    plot.new()
+  }
+}
+par(mar = c(0, 0, 0, 0))
+plot.new()
+legend("center", horiz = TRUE, bty = "n",
        pch = c(16, NA), lty = c(NA, 1), lwd = c(NA, 2),
        col = c("#1b6da8", "#c43c39"), legend = c("Observed", "Predicted"))
+layout(1)
+par(old_par)
 ```
 
 ### Size-Composition Fit
@@ -1692,37 +1719,56 @@ rows from the first four modified composition series.
 
 ```{r}
 #| label: fig-bbrkc-size-composition-fit
-#| fig-cap: "Observed and predicted BBRKC size compositions for selected recent rows."
+#| fig-cap: "Observed and predicted BBRKC size compositions for selected recent fit-summary rows."
 #| code-fold: true
 #| eval: !expr has_bbrkc_inputs
-size_pred <- size_composition_to_data_frame(rtmb_model, rtmb_data)
-obs_comp <- rtmb_data$observed_size_compositions
+size_fit <- inputs$admb_size_fit
+size_keys <- c("modified_series", "year", "fleet", "season", "sex", "type", "shell", "maturity")
+size_key_rows <- unique(size_fit[size_fit$vector == "obs", size_keys])
+size_key_rows <- size_key_rows[order(size_key_rows$modified_series, size_key_rows$year), ]
+series_ids <- sort(unique(size_key_rows$modified_series))[1:4]
 plot_records <- list()
-for (series in seq_len(min(4, length(obs_comp$observed)))) {
-  obs <- obs_comp$observed[[series]]
-  row <- nrow(obs)
-  pred <- size_pred[size_pred$modified_series == series, ]
-  pred_years <- sort(unique(pred$year))
-  year <- pred_years[row]
-  pred_row <- pred[pred$year == year & pred$modified_series == series, ]
-  plot_records[[series]] <- list(
+for (series in series_ids) {
+  candidates <- size_key_rows[size_key_rows$modified_series == series, ]
+  key <- candidates[nrow(candidates), ]
+  key_match <- rep(TRUE, nrow(size_fit))
+  for (key_name in size_keys) {
+    key_match <- key_match & size_fit[[key_name]] == key[[key_name]]
+  }
+  obs <- size_fit[key_match & size_fit$vector == "obs", c("size_bin", "value")]
+  pred <- size_fit[key_match & size_fit$vector == "pred", c("size_bin", "value")]
+  x <- merge(obs, pred, by = "size_bin", suffixes = c("_observed", "_predicted"))
+  x <- x[order(x$size_bin), ]
+  plot_records[[as.character(series)]] <- list(
     series = series,
-    year = year,
-    observed = as.numeric(obs[row, ]) / sum(as.numeric(obs[row, ])),
-    predicted = pred_row$value / sum(pred_row$value)
+    year = key$year,
+    observed = x$value_observed / sum(x$value_observed),
+    predicted = x$value_predicted / sum(x$value_predicted),
+    size_bin = x$size_bin
   )
 }
-old_par <- par(mfrow = c(2, 2), mar = c(3, 3, 2, 1), oma = c(1, 1, 0, 0))
+old_par <- par(mar = c(3, 3, 2, 1), oma = c(0, 0, 0, 0))
+layout(rbind(matrix(1:4, ncol = 2, byrow = TRUE), c(5, 5)), heights = c(1, 1, 0.16))
 for (rec in plot_records) {
   ylim <- range(c(rec$observed, rec$predicted), finite = TRUE)
-  plot(seq_along(rec$observed), rec$observed, type = "h", lwd = 3,
-       col = "#1b6da8", ylim = ylim, xlab = "", ylab = "",
+  mids <- barplot(rec$observed, col = "#1b6da8", border = NA, ylim = ylim,
+       xlab = "", ylab = "",
        main = paste("Series", rec$series, rec$year), bty = "l")
-  lines(seq_along(rec$predicted), rec$predicted, lwd = 2, col = "#c43c39")
+  axis(1, at = mids, labels = rec$size_bin)
+  lines(mids, rec$predicted, lwd = 2, col = "#c43c39")
   grid(col = "grey88")
 }
-par(old_par)
-legend("bottom", inset = -0.02, xpd = NA, horiz = TRUE, bty = "n",
-       lty = c(1, 1), lwd = c(3, 2), col = c("#1b6da8", "#c43c39"),
+if (length(plot_records) < 4) {
+  for (unused in seq_len(4 - length(plot_records))) {
+    plot.new()
+  }
+}
+par(mar = c(0, 0, 0, 0))
+plot.new()
+legend("center", horiz = TRUE, bty = "n",
+       fill = c("#1b6da8", NA), border = c(NA, NA),
+       lty = c(NA, 1), lwd = c(NA, 2), col = c(NA, "#c43c39"),
        legend = c("Observed", "Predicted"))
+layout(1)
+par(old_par)
 ```
