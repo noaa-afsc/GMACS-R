@@ -18,6 +18,8 @@ The detailed porting notes, parity checks, and next implementation steps live in
 - `run_tanner.R`: Tanner input parser and fitted-parameter summary for the
   files in `examples/tanners`; it also discovers Tanner ADMB report outputs
   when `Gmacsall.out` and `gmacs.rep` or recognized equivalent names are added.
+- `run_snow.R`: Snow crab input parser and ADMB report-summary smoke run for
+  the files in `examples/snow`.
 - `gmacs.tpl`: GMACS ADMB template reference.
 - `examples/tanners/`: Tanner crab GMACS input files retained as local
   reference material.
@@ -78,6 +80,7 @@ The Quarto notes are rendered for GitHub Pages under `docs/`:
 ```sh
 quarto render bbrkc_rtmb_port_steps.qmd --output-dir docs --output bbrkc.html --no-clean
 quarto render tanner_rtmb_port_steps.qmd --output-dir docs --output tanner.html --no-clean
+quarto render snow_rtmb_port_steps.qmd --output-dir docs --output snow.html --no-clean
 ```
 
 Configure GitHub Pages to serve the `docs/` directory from the `main` branch.
