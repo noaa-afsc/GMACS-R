@@ -930,7 +930,7 @@ read_bbrkc_control_phases <- function(path) {
   )
 }
 
-read_bbrkc_inputs <- function(root = "build/BBRKC") {
+read_bbrkc_inputs <- function(root = "examples/BBRKC") {
   main <- read_gmacs_main(file.path(root, "gmacs.dat"))
   data <- read_gmacs_data(file.path(root, main$data_file))
   control_path <- file.path(root, main$control_file)

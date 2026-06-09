@@ -20,7 +20,7 @@ once. The goal is to create a reproducible sequence of parity checks where each
 deterministic model block is ported and compared with existing ADMB output
 before the corresponding likelihood components are activated.
 
-The BBRKC case is read from `build/BBRKC` and currently uses:
+The BBRKC case is read from `examples/BBRKC` and currently uses:
 
 - `gmacs.dat` for file routing and run controls.
 - `bbrkc_21_1.dat` for dimensions, catch, survey, composition, growth, and
@@ -66,7 +66,7 @@ Expected check:
 source("R/read_gmacs_bbrkc.R")
 source("R/gmacs_rtmb_nll.R")
 
-inputs <- read_bbrkc_inputs("build/BBRKC")
+inputs <- read_bbrkc_inputs("examples/BBRKC")
 map <- make_bbrkc_rtmb_map(inputs)
 count_active_map_parameters(map)
 ```
@@ -1520,7 +1520,7 @@ trajectories for biomass, recruitment, and natural mortality.
 #| label: results-setup
 #| include: false
 has_bbrkc_inputs <- all(file.exists(file.path(
-  "build", "BBRKC",
+  "examples", "BBRKC",
   c("gmacs.dat", "gmacs.pin", "Gmacsall.out", "gmacs.rep")
 )))
 
@@ -1528,7 +1528,7 @@ if (has_bbrkc_inputs) {
 source("R/read_gmacs_bbrkc.R")
 source("R/gmacs_rtmb_nll.R")
 
-inputs <- read_bbrkc_inputs("build/BBRKC")
+inputs <- read_bbrkc_inputs("examples/BBRKC")
 rtmb_data <- make_gmacs_rtmb_data(inputs)
 rtmb_par <- make_gmacs_parameter_list(inputs)
 rtmb_model <- initialize_bbrkc_model_parameters(rtmb_par, rtmb_data)
@@ -1545,7 +1545,7 @@ groups <- rtmb_model$groups
 #| results: asis
 if (!has_bbrkc_inputs) {
   cat(
-    "The executable results figures require `build/BBRKC/gmacs.dat`, ",
+    "The executable results figures require `examples/BBRKC/gmacs.dat`, ",
     "`gmacs.pin`, `Gmacsall.out`, and `gmacs.rep`. Those local model inputs ",
     "are not committed to the repository, so the GitHub Pages render shows ",
     "the figure code without executing it."

@@ -31,9 +31,8 @@ The BBRKC scripts require these files in one directory:
 - `Gmacsall.out`
 - `gmacs.rep`
 
-By default the scripts look in `build/BBRKC`, which is ignored because it is a
-local generated/input workspace. To use another location, set
-`GMACS_BBRKC_ROOT`:
+By default the scripts look in `examples/BBRKC`, which contains the committed
+BBRKC parity example. To use another location, set `GMACS_BBRKC_ROOT`:
 
 ```sh
 GMACS_BBRKC_ROOT=/path/to/BBRKC Rscript run_bbrkc.R

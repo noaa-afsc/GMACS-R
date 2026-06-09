@@ -14,7 +14,7 @@ repo_root <- dirname(script_path("run_bbrkc.R"))
 source(file.path(repo_root, "R", "read_gmacs_bbrkc.R"))
 source(file.path(repo_root, "R", "gmacs_rtmb_nll.R"))
 
-input_root <- Sys.getenv("GMACS_BBRKC_ROOT", file.path(repo_root, "build", "BBRKC"))
+input_root <- Sys.getenv("GMACS_BBRKC_ROOT", file.path(repo_root, "examples", "BBRKC"))
 required_inputs <- file.path(input_root, c("gmacs.dat", "gmacs.pin", "Gmacsall.out", "gmacs.rep"))
 missing_inputs <- required_inputs[!file.exists(required_inputs)]
 if (length(missing_inputs)) {

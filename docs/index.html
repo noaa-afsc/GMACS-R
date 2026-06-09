@@ -177,7 +177,7 @@ window.Quarto = {
 <section id="purpose" class="level2">
 <h2 class="anchored" data-anchor-id="purpose">Purpose</h2>
 <p>This document tracks the staged conversion of the BBRKC GMACS ADMB model to an RTMB implementation. The current goal is not to translate all of <code>gmacs.tpl</code> at once. The goal is to create a reproducible sequence of parity checks where each deterministic model block is ported and compared with existing ADMB output before the corresponding likelihood components are activated.</p>
-<p>The BBRKC case is read from <code>build/BBRKC</code> and currently uses:</p>
+<p>The BBRKC case is read from <code>examples/BBRKC</code> and currently uses:</p>
 <ul>
 <li><code>gmacs.dat</code> for file routing and run controls.</li>
 <li><code>bbrkc_21_1.dat</code> for dimensions, catch, survey, composition, growth, and environmental data.</li>
@@ -237,7 +237,7 @@ window.Quarto = {
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"R/read_gmacs_bbrkc.R"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"R/gmacs_rtmb_nll.R"</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>inputs <span class="ot">&lt;-</span> <span class="fu">read_bbrkc_inputs</span>(<span class="st">"build/BBRKC"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>inputs <span class="ot">&lt;-</span> <span class="fu">read_bbrkc_inputs</span>(<span class="st">"examples/BBRKC"</span>)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>map <span class="ot">&lt;-</span> <span class="fu">make_bbrkc_rtmb_map</span>(inputs)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">count_active_map_parameters</span>(map)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
@@ -1532,7 +1532,6 @@ R implementation: prior-density blocks
 <section id="appendix-results-figures" class="level2">
 <h2 class="anchored" data-anchor-id="appendix-results-figures">Appendix: Results Figures</h2>
 <p>The figures below are generated directly from the current RTMB population state initialized at the BBRKC fitted <code>.pin</code> values. They are not a refit; they are quick visual diagnostics that the port produces interpretable annual trajectories for biomass, recruitment, and natural mortality.</p>
-<p>The executable results figures require <code>build/BBRKC/gmacs.dat</code>, <code>gmacs.pin</code>, <code>Gmacsall.out</code>, and <code>gmacs.rep</code>. Those local model inputs are not committed to the repository, so the GitHub Pages render shows the figure code without executing it.</p>
 <section id="biomass" class="level3">
 <h3 class="anchored" data-anchor-id="biomass">Biomass</h3>
 <p>Annual biomass is summarized from the first season of each model year as numbers-at-size multiplied by mean weight-at-size, summed over sex, maturity, shell condition, and size class:</p>
@@ -1561,6 +1560,18 @@ w_{\mathrm{sex}(g),\mathrm{mat}(g),y,\ell}.
 <span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a><span class="fu">grid</span>(<span class="at">col =</span> <span class="st">"grey85"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output-display">
+<div id="fig-rtmb-biomass" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rtmb-biomass-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="bbrkc_rtmb_port_steps_files/figure-html/fig-rtmb-biomass-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rtmb-biomass-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: BBRKC biomass trajectory from the current RTMB population state.
+</figcaption>
+</figure>
+</div>
+</div>
 </div>
 </section>
 <section id="recruitment-1" class="level3">
@@ -1588,6 +1599,18 @@ R_y = \sum_s R_{s,y}.
 <span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Female"</span>, <span class="st">"Male"</span>, <span class="st">"Total"</span>)</span>
 <span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output-display">
+<div id="fig-rtmb-recruitment" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rtmb-recruitment-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="bbrkc_rtmb_port_steps_files/figure-html/fig-rtmb-recruitment-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rtmb-recruitment-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: BBRKC recruitment trajectory from the current RTMB recruitment block.
+</figcaption>
+</figure>
+</div>
+</div>
 </div>
 </section>
 <section id="natural-mortality-1" class="level3">
@@ -1621,6 +1644,18 @@ R_y = \sum_s R_{s,y}.
 <span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Female"</span>, <span class="st">"Male"</span>)</span>
 <span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output-display">
+<div id="fig-rtmb-natural-mortality" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rtmb-natural-mortality-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="bbrkc_rtmb_port_steps_files/figure-html/fig-rtmb-natural-mortality-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rtmb-natural-mortality-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Mean natural mortality by sex from the current RTMB mortality block.
+</figcaption>
+</figure>
+</div>
+</div>
 </div>
 </section>
 </section>
