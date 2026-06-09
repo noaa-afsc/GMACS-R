@@ -62,11 +62,27 @@ source("run_bbrkc.R")
   recruitment, FREEPARSSCALED initial numbers, seasonal population updates,
   catch predictions, survey index predictions, and size-composition
   predictions.
+- Computes gamma growth transitions and recruitment size distributions with
+  `RTMB::pgamma()` so active growth and recruitment-distribution parameters
+  remain on the AD tape.
 - Builds an RTMB objective with named likelihood slots matching `gmacs.tpl`.
+- Audits the active likelihood components, raw `nlogPenalty`, and
+  `priorDensity` against ADMB reference blocks in `run_bbrkc.R`.
 
-## Next porting steps
+## Rendered Notes
 
-1. Audit each likelihood component against ADMB `nloglike`, `nlogPenalty`, and
-   `priorDensity` blocks after every deterministic prediction change.
-2. Replace remaining numerical precomputations with AD-compatible equivalents
-   where active parameters should affect the tape.
+The Quarto notes are rendered for GitHub Pages under `docs/`:
+
+```sh
+quarto render bbrkc_rtmb_port_steps.qmd --output-dir docs --output index.html
+```
+
+Configure GitHub Pages to serve the `docs/` directory from the `main` branch.
+
+## Next Porting Steps
+
+1. Run `Rscript run_bbrkc.R` after every deterministic prediction change and
+   inspect the printed ADMB likelihood/penalty/prior audit.
+2. Add active growth likelihood terms if future GMACS inputs include growth
+   observations.
+3. Broaden validation against additional GMACS model configurations.

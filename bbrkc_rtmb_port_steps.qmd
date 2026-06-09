@@ -92,7 +92,7 @@ against the ADMB `#Index_fit_summary` and raw `nloglike` reference.
 | Natural mortality | `calc_bbrkc_natural_mortality()` | `Gmacsall.out`, natural mortality by class | Matches ADMB numerical output |
 | Total mortality | `calc_bbrkc_total_mortality()` | `Gmacsall.out`, continuous and discrete total mortality by class | Matches ADMB numerical output |
 | Molt probability | `calc_bbrkc_molting_probability()` | `Gmacsall.out`, molt probability | Matches ADMB numerical output |
-| Growth transition | `calc_bbrkc_growth_transition()` | `Gmacsall.out`, growth transition matrix | Matches ADMB numerical output; currently fixed numerically inside the taped objective |
+| Growth transition | `calc_bbrkc_growth_transition()` | `Gmacsall.out`, growth transition matrix | Matches ADMB numerical output and uses `RTMB::pgamma()` so active growth parameters affect the tape |
 | Recruitment | `calc_bbrkc_recruits()` | `Gmacsall.out`, overall summary | Matches ADMB numerical output to printed precision |
 | Initial numbers | `calc_bbrkc_initial_numbers()` | `Gmacsall.out`, `N(...)` at first output season | FREEPARSSCALED normalized logN offsets ported |
 | Population update | `calc_bbrkc_population_numbers()` | `Gmacsall.out`, `N(total)`, sex, and shell blocks | Matches ADMB numerical output to printed precision |
@@ -193,15 +193,13 @@ Molt probability:
 
 Growth transition:
 
-- The transition matrix is computed from the fitted `.pin` growth state using
-  the GMACS gamma-increment formula.
+- The transition matrix is computed from active growth parameters using the
+  GMACS gamma-increment formula.
 - GMACS prints `trans(growth_transition)`, so the ADMB parser explicitly treats
   printed rows as destination size classes and printed columns as source size
   classes.
-- Base R `pgamma()` does not accept RTMB AD scalars. Until an AD-compatible
-  gamma CDF is introduced, the transition matrix is precomputed numerically from
-  `gmacs.pin` and reported as a deterministic fixed block while the objective
-  remains a parity scaffold.
+- Gamma CDF calls use `RTMB::pgamma()` through the local `ad_pgamma()` wrapper,
+  avoiding the previous numeric precompute from `gmacs.pin`.
 
 ## Recruitment and Population Details
 
@@ -213,8 +211,9 @@ Recruitment:
   numbers.
 - Recruitment size distribution is computed from the GMACS gamma recruitment
   formula and truncated at the sex-specific maximum recruitment size.
-- As with growth transitions, the recruitment size distribution uses
-  `pgamma()` and is currently precomputed numerically from `gmacs.pin`.
+- Recruitment size probabilities also use `RTMB::pgamma()` through
+  `ad_pgamma()`, so the distribution responds to active `theta` recruitment
+  size parameters on the tape.
 
 Initial numbers:
 
@@ -310,8 +309,10 @@ Remaining likelihood work:
   predictions are reconciled
 - growth likelihood only if active growth observations are introduced
 
-Each activated component should continue to be compared to the ADMB `nloglike`,
-`nlogPenalty`, and `priorDensity` blocks read from `Gmacsall.out`.
+`run_bbrkc.R` now performs this audit directly after taping the objective. Each
+deterministic prediction change should be followed by a run that compares the
+active `nloglike` components, raw `nlogPenalty`, and `priorDensity` vectors
+against the ADMB blocks read from `Gmacsall.out`.
 
 ## Optimization Smoke Test
 
@@ -396,7 +397,8 @@ precision.
 
 This appendix records the equation set represented by the current RTMB scaffold
 and the remaining GMACS equations that still need to be activated. The
-conversion is not complete: population dynamics, catch predictions,
+conversion is not complete, but the BBRKC population dynamics, growth
+transition matrices, recruitment size distributions, catch predictions,
 catch-at-size predictions, catch likelihood, robust length-composition
 likelihood, survey index likelihood, and recruitment likelihood are ported and
 taped; weighted penalties and prior densities are active.
@@ -722,7 +724,7 @@ calc_bbrkc_molting_probability <- function(growth, data) {
 calc_bbrkc_growth_transition <- function(growth, data) {
   for (sex in seq_len(nsex)) {
     for (from in seq_len(nclass)) {
-      cdf <- pgamma(data$size_breaks - data$mid_points[from],
+      cdf <- ad_pgamma(data$size_breaks - data$mid_points[from],
         shape = shape[from], scale = scale
       )
       probs <- diff(cdf)
@@ -1502,6 +1504,11 @@ The parser reads the ADMB `nloglike`, `nlogPenalty`, and `priorDensity` summary
 blocks from `Gmacsall.out`; all currently active BBRKC objective components are
 checked against those component-level regression targets.
 
+`audit_bbrkc_admb_components()` builds the current regression table from an
+RTMB report object and the parsed ADMB reference blocks. It aggregates the
+likelihood rows to match the BBRKC objective components and compares the raw
+penalty and prior vectors element by element.
+
 ## Appendix: Results Figures
 
 The figures below are generated directly from the current RTMB population
@@ -1512,6 +1519,12 @@ trajectories for biomass, recruitment, and natural mortality.
 ```{r}
 #| label: results-setup
 #| include: false
+has_bbrkc_inputs <- all(file.exists(file.path(
+  "build", "BBRKC",
+  c("gmacs.dat", "gmacs.pin", "Gmacsall.out", "gmacs.rep")
+)))
+
+if (has_bbrkc_inputs) {
 source("R/read_gmacs_bbrkc.R")
 source("R/gmacs_rtmb_nll.R")
 
@@ -1523,6 +1536,21 @@ rtmb_model <- initialize_bbrkc_model_parameters(rtmb_par, rtmb_data)
 years <- rtmb_data$years
 n_years <- length(years)
 groups <- rtmb_model$groups
+}
+```
+
+```{r}
+#| label: missing-results-inputs
+#| echo: false
+#| results: asis
+if (!has_bbrkc_inputs) {
+  cat(
+    "The executable results figures require `build/BBRKC/gmacs.dat`, ",
+    "`gmacs.pin`, `Gmacsall.out`, and `gmacs.rep`. Those local model inputs ",
+    "are not committed to the repository, so the GitHub Pages render shows ",
+    "the figure code without executing it."
+  )
+}
 ```
 
 ### Biomass
@@ -1542,6 +1570,7 @@ $$
 #| label: fig-rtmb-biomass
 #| fig-cap: "BBRKC biomass trajectory from the current RTMB population state."
 #| code-fold: true
+#| eval: !expr has_bbrkc_inputs
 biomass <- numeric(n_years)
 for (iy in seq_len(n_years)) {
   for (ig in seq_len(nrow(groups))) {
@@ -1572,6 +1601,7 @@ $$
 #| label: fig-rtmb-recruitment
 #| fig-cap: "BBRKC recruitment trajectory from the current RTMB recruitment block."
 #| code-fold: true
+#| eval: !expr has_bbrkc_inputs
 recruits <- rtmb_model$recruits[, seq_len(n_years), drop = FALSE]
 recruitment_total <- colSums(recruits)
 
@@ -1605,6 +1635,7 @@ $$
 #| label: fig-rtmb-natural-mortality
 #| fig-cap: "Mean natural mortality by sex from the current RTMB mortality block."
 #| code-fold: true
+#| eval: !expr has_bbrkc_inputs
 n_sex <- rtmb_data$dimensions[["nsex"]]
 maturity_index <- min(2L, dim(rtmb_model$M)[2])
 mean_m <- matrix(NA_real_, nrow = n_years, ncol = n_sex)

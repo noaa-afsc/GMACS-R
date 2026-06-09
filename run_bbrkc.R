@@ -46,31 +46,10 @@ if (requireNamespace("RTMB", quietly = TRUE)) {
   cat("  active parameter length:", length(obj$par), "\n")
   cat("  initial objective:", obj$fn(obj$par), "\n")
   report <- obj$report()
-  admb_components <- c(
-    catch = sum(inputs$admb_reference$nloglike[1:7]),
-    index = sum(inputs$admb_reference$nloglike[8:9]),
-    length = sum(inputs$admb_reference$nloglike[10:17]),
-    recruitment = sum(inputs$admb_reference$nloglike[18:20]),
-    growth = sum(inputs$admb_reference$nloglike[21:22])
-  )
-  cat("  likelihood components:\n")
-  for (component in names(report$nloglike)) {
-    cat(
-      "    ", component,
-      " RTMB=", signif(report$nloglike[[component]], 8),
-      " ADMB=", signif(admb_components[[component]], 8),
-      " diff=", signif(report$nloglike[[component]] - admb_components[[component]], 4),
-      "\n",
-      sep = ""
-    )
-  }
-  penalty_diff <- as.numeric(report$nlog_penalty) - inputs$admb_reference$nlog_penalty
-  cat("  raw penalty max abs diff:", signif(max(abs(penalty_diff)), 4), "\n", sep = "")
-  cat("  raw penalty sum:", signif(sum(report$nlog_penalty), 8), "\n", sep = "")
+  audit <- audit_bbrkc_admb_components(report, inputs)
+  cat("  ADMB likelihood/penalty/prior audit:\n")
+  print_bbrkc_admb_audit(audit)
   cat("  weighted penalty sum:", signif(sum(report$weighted_nlog_penalty), 8), "\n", sep = "")
-  prior_diff <- as.numeric(report$prior_density) - inputs$admb_reference$prior_density
-  cat("  prior density max abs diff:", signif(max(abs(prior_diff)), 4), "\n", sep = "")
-  cat("  prior density sum:", signif(sum(report$prior_density), 8), "\n", sep = "")
   model <- initialize_bbrkc_model_parameters(make_gmacs_parameter_list(inputs), make_gmacs_rtmb_data(inputs))
   for (component in c("capture", "retained", "discard")) {
     cmp <- compare_selectivity_to_admb(model, inputs, component)

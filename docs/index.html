@@ -1,0 +1,2035 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-06-09">
+
+<title>BBRKC GMACS to RTMB Porting Notes</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="bbrkc_rtmb_port_steps_files/libs/clipboard/clipboard.min.js"></script>
+<script src="bbrkc_rtmb_port_steps_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="bbrkc_rtmb_port_steps_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="bbrkc_rtmb_port_steps_files/libs/quarto-html/popper.min.js"></script>
+<script src="bbrkc_rtmb_port_steps_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="bbrkc_rtmb_port_steps_files/libs/quarto-html/anchor.min.js"></script>
+<link href="bbrkc_rtmb_port_steps_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="bbrkc_rtmb_port_steps_files/libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="bbrkc_rtmb_port_steps_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="bbrkc_rtmb_port_steps_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="bbrkc_rtmb_port_steps_files/libs/bootstrap/bootstrap-138a6193a3bd40baf1e627da441a4734.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#purpose" id="toc-purpose" class="nav-link active" data-scroll-target="#purpose">Purpose</a></li>
+  <li><a href="#current-rtmb-files" id="toc-current-rtmb-files" class="nav-link" data-scroll-target="#current-rtmb-files">Current RTMB Files</a></li>
+  <li><a href="#parameter-mapping" id="toc-parameter-mapping" class="nav-link" data-scroll-target="#parameter-mapping">Parameter Mapping</a></li>
+  <li><a href="#deterministic-status" id="toc-deterministic-status" class="nav-link" data-scroll-target="#deterministic-status">Deterministic Status</a></li>
+  <li><a href="#selectivity-details" id="toc-selectivity-details" class="nav-link" data-scroll-target="#selectivity-details">Selectivity Details</a></li>
+  <li><a href="#mortality-details" id="toc-mortality-details" class="nav-link" data-scroll-target="#mortality-details">Mortality Details</a></li>
+  <li><a href="#growth-details" id="toc-growth-details" class="nav-link" data-scroll-target="#growth-details">Growth Details</a></li>
+  <li><a href="#recruitment-and-population-details" id="toc-recruitment-and-population-details" class="nav-link" data-scroll-target="#recruitment-and-population-details">Recruitment and Population Details</a></li>
+  <li><a href="#catch-prediction-details" id="toc-catch-prediction-details" class="nav-link" data-scroll-target="#catch-prediction-details">Catch Prediction Details</a></li>
+  <li><a href="#next-porting-steps" id="toc-next-porting-steps" class="nav-link" data-scroll-target="#next-porting-steps">Next Porting Steps</a>
+  <ul class="collapse">
+  <li><a href="#prediction-blocks" id="toc-prediction-blocks" class="nav-link" data-scroll-target="#prediction-blocks">1. Prediction Blocks</a></li>
+  <li><a href="#predictions-and-likelihoods" id="toc-predictions-and-likelihoods" class="nav-link" data-scroll-target="#predictions-and-likelihoods">2. Predictions and Likelihoods</a></li>
+  </ul></li>
+  <li><a href="#optimization-smoke-test" id="toc-optimization-smoke-test" class="nav-link" data-scroll-target="#optimization-smoke-test">Optimization Smoke Test</a></li>
+  <li><a href="#run-log" id="toc-run-log" class="nav-link" data-scroll-target="#run-log">Run Log</a></li>
+  <li><a href="#appendix-model-equations" id="toc-appendix-model-equations" class="nav-link" data-scroll-target="#appendix-model-equations">Appendix: Model Equations</a>
+  <ul class="collapse">
+  <li><a href="#a.-notation" id="toc-a.-notation" class="nav-link" data-scroll-target="#a.-notation">A. Notation</a></li>
+  <li><a href="#b.-population-dynamics" id="toc-b.-population-dynamics" class="nav-link" data-scroll-target="#b.-population-dynamics">B. Population Dynamics</a></li>
+  <li><a href="#c.-observation-and-prediction-equations" id="toc-c.-observation-and-prediction-equations" class="nav-link" data-scroll-target="#c.-observation-and-prediction-equations">C. Observation and Prediction Equations</a></li>
+  <li><a href="#d.-model-fitting-and-likelihoods" id="toc-d.-model-fitting-and-likelihoods" class="nav-link" data-scroll-target="#d.-model-fitting-and-likelihoods">D. Model Fitting and Likelihoods</a></li>
+  <li><a href="#e.-penalties-and-priors" id="toc-e.-penalties-and-priors" class="nav-link" data-scroll-target="#e.-penalties-and-priors">E. Penalties and Priors</a></li>
+  </ul></li>
+  <li><a href="#appendix-results-figures" id="toc-appendix-results-figures" class="nav-link" data-scroll-target="#appendix-results-figures">Appendix: Results Figures</a>
+  <ul class="collapse">
+  <li><a href="#biomass" id="toc-biomass" class="nav-link" data-scroll-target="#biomass">Biomass</a></li>
+  <li><a href="#recruitment-1" id="toc-recruitment-1" class="nav-link" data-scroll-target="#recruitment-1">Recruitment</a></li>
+  <li><a href="#natural-mortality-1" id="toc-natural-mortality-1" class="nav-link" data-scroll-target="#natural-mortality-1">Natural Mortality</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">BBRKC GMACS to RTMB Porting Notes</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 9, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="purpose" class="level2">
+<h2 class="anchored" data-anchor-id="purpose">Purpose</h2>
+<p>This document tracks the staged conversion of the BBRKC GMACS ADMB model to an RTMB implementation. The current goal is not to translate all of <code>gmacs.tpl</code> at once. The goal is to create a reproducible sequence of parity checks where each deterministic model block is ported and compared with existing ADMB output before the corresponding likelihood components are activated.</p>
+<p>The BBRKC case is read from <code>build/BBRKC</code> and currently uses:</p>
+<ul>
+<li><code>gmacs.dat</code> for file routing and run controls.</li>
+<li><code>bbrkc_21_1.dat</code> for dimensions, catch, survey, composition, growth, and environmental data.</li>
+<li><code>bbrkc_21_1.ctl</code> for phases, selectivity structure, mortality controls, and likelihood weights.</li>
+<li><code>gmacs.pin</code> for the fitted full parameter state.</li>
+<li><code>gmacs.rep</code> and <code>Gmacsall.out</code> as ADMB parity references.</li>
+</ul>
+</section>
+<section id="current-rtmb-files" class="level2">
+<h2 class="anchored" data-anchor-id="current-rtmb-files">Current RTMB Files</h2>
+<p>The current scaffold lives at the repository root.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>File</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>R/read_gmacs_bbrkc.R</code></td>
+<td>Reads BBRKC GMACS inputs, fitted <code>.pin</code> values, ADMB likelihood blocks, selectivity reports, mortality reports, growth reports, and numbers-at-size reports.</td>
+</tr>
+<tr class="even">
+<td><code>R/gmacs_rtmb_nll.R</code></td>
+<td>Builds RTMB data and parameter lists, maps full <code>.pin</code> values to active parameters, and contains deterministic model blocks.</td>
+</tr>
+<tr class="odd">
+<td><code>run_bbrkc.R</code></td>
+<td>Runs parser validation, constructs the mapped RTMB object, and prints deterministic parity diagnostics.</td>
+</tr>
+<tr class="even">
+<td><code>optimize_bbrkc.R</code></td>
+<td>Runs a short <code>nlminb()</code> optimization smoke test from the mapped 366-parameter RTMB object.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="parameter-mapping" class="level2">
+<h2 class="anchored" data-anchor-id="parameter-mapping">Parameter Mapping</h2>
+<p>The full BBRKC <code>.pin</code> file contains 560 numeric entries. ADMB reports 366 active estimated parameters. The function <code>make_bbrkc_rtmb_map()</code> builds an RTMB <code>map</code> from the BBRKC control phases and maps inactive entries to <code>NA</code>.</p>
+<p>Special cases:</p>
+<ul>
+<li><code>log_fdev</code> and <code>log_fdov</code> activity follows the corresponding fleet-level <code>log_fbar</code> and <code>log_foff</code> phases.</li>
+<li><code>log_vn</code> uses the GMACS composition aggregator, reducing 13 input composition controls to 8 effective sample-size entries.</li>
+<li><code>logit_rec_prop_est</code> is treated like an ADMB dev vector, so one element is mapped off to reproduce 45 active entries from 46 values.</li>
+<li>BBRKC uses <code>FREEPARSSCALED</code> initial numbers. The first scaled <code>logN0</code> entry is fixed at zero and <code>theta[13:91]</code> supplies the remaining 79 sex/shell/size offsets.</li>
+</ul>
+<p>Expected check:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"R/read_gmacs_bbrkc.R"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"R/gmacs_rtmb_nll.R"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>inputs <span class="ot">&lt;-</span> <span class="fu">read_bbrkc_inputs</span>(<span class="st">"build/BBRKC"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>map <span class="ot">&lt;-</span> <span class="fu">make_bbrkc_rtmb_map</span>(inputs)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">count_active_map_parameters</span>(map)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Expected result: <code>366</code>.</p>
+</section>
+<section id="deterministic-status" class="level2">
+<h2 class="anchored" data-anchor-id="deterministic-status">Deterministic Status</h2>
+<p>The current RTMB scaffold ports BBRKC selectivity, fishing mortality, natural mortality, total mortality/survival setup, growth, recruitment, initial numbers, the annual/seasonal population update, catch predictions, and catch-at-size predictions. Catch, robust size-composition, and recruitment likelihoods are now active in the RTMB objective and checked against the ADMB <code>nloglike</code> reference. Survey/index predictions and likelihoods are now active and matched against the ADMB <code>#Index_fit_summary</code> and raw <code>nloglike</code> reference.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Block</th>
+<th>RTMB function</th>
+<th>ADMB reference</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Parameter map</td>
+<td><code>make_bbrkc_rtmb_map()</code></td>
+<td>ADMB active parameter count</td>
+<td>560 <code>.pin</code> entries mapped to 366 active parameters</td>
+</tr>
+<tr class="even">
+<td>Capture selectivity</td>
+<td><code>calc_bbrkc_capture_selectivity()</code></td>
+<td><code>gmacs.rep</code>, <code>slx_capture</code></td>
+<td>Matches report rounding</td>
+</tr>
+<tr class="odd">
+<td>Retention and discard selectivity</td>
+<td><code>calc_bbrkc_retention_selectivity()</code></td>
+<td><code>gmacs.rep</code>, <code>slx_retaind</code>, <code>slx_discard</code></td>
+<td>Matches report rounding</td>
+</tr>
+<tr class="even">
+<td>Fishing mortality</td>
+<td><code>calc_bbrkc_fishing_mortality()</code></td>
+<td><code>Gmacsall.out</code>, fully selected F and continuous F-at-size</td>
+<td>Matches ADMB numerical output</td>
+</tr>
+<tr class="odd">
+<td>Natural mortality</td>
+<td><code>calc_bbrkc_natural_mortality()</code></td>
+<td><code>Gmacsall.out</code>, natural mortality by class</td>
+<td>Matches ADMB numerical output</td>
+</tr>
+<tr class="even">
+<td>Total mortality</td>
+<td><code>calc_bbrkc_total_mortality()</code></td>
+<td><code>Gmacsall.out</code>, continuous and discrete total mortality by class</td>
+<td>Matches ADMB numerical output</td>
+</tr>
+<tr class="odd">
+<td>Molt probability</td>
+<td><code>calc_bbrkc_molting_probability()</code></td>
+<td><code>Gmacsall.out</code>, molt probability</td>
+<td>Matches ADMB numerical output</td>
+</tr>
+<tr class="even">
+<td>Growth transition</td>
+<td><code>calc_bbrkc_growth_transition()</code></td>
+<td><code>Gmacsall.out</code>, growth transition matrix</td>
+<td>Matches ADMB numerical output and uses <code>RTMB::pgamma()</code> so active growth parameters affect the tape</td>
+</tr>
+<tr class="odd">
+<td>Recruitment</td>
+<td><code>calc_bbrkc_recruits()</code></td>
+<td><code>Gmacsall.out</code>, overall summary</td>
+<td>Matches ADMB numerical output to printed precision</td>
+</tr>
+<tr class="even">
+<td>Initial numbers</td>
+<td><code>calc_bbrkc_initial_numbers()</code></td>
+<td><code>Gmacsall.out</code>, <code>N(...)</code> at first output season</td>
+<td>FREEPARSSCALED normalized logN offsets ported</td>
+</tr>
+<tr class="odd">
+<td>Population update</td>
+<td><code>calc_bbrkc_population_numbers()</code></td>
+<td><code>Gmacsall.out</code>, <code>N(total)</code>, sex, and shell blocks</td>
+<td>Matches ADMB numerical output to printed precision</td>
+</tr>
+<tr class="even">
+<td>Catch observations</td>
+<td><code>calc_bbrkc_predicted_catch()</code></td>
+<td><code>Gmacsall.out</code>, <code>Catch_fit_summary</code></td>
+<td>Matches ADMB numerical output to printed precision; AD-safe flat vector is taped and reported</td>
+</tr>
+<tr class="odd">
+<td>Catch-at-size</td>
+<td><code>calc_bbrkc_predicted_size_compositions()</code></td>
+<td><code>Gmacsall.out</code>, <code>Size_fit_summary</code></td>
+<td>Matches ADMB numerical output to printed precision; AD-safe flat vector is taped and reported</td>
+</tr>
+<tr class="even">
+<td>Catch likelihood</td>
+<td><code>catch_likelihood()</code> inside <code>gmacs_rtmb_nll_factory()</code></td>
+<td><code>Gmacsall.out</code>, <code>nloglike</code> row 1</td>
+<td>Matches ADMB raw likelihood components</td>
+</tr>
+<tr class="odd">
+<td>Survey index</td>
+<td><code>calc_bbrkc_predicted_survey()</code></td>
+<td><code>Gmacsall.out</code>, <code>#Index_fit_summary</code></td>
+<td>Matches ADMB predicted index output to printed precision</td>
+</tr>
+<tr class="even">
+<td>Survey likelihood</td>
+<td><code>index_likelihood()</code> inside <code>gmacs_rtmb_nll_factory()</code></td>
+<td><code>Gmacsall.out</code>, <code>nloglike</code> row 2</td>
+<td>Matches ADMB raw likelihood components</td>
+</tr>
+<tr class="odd">
+<td>Length likelihood</td>
+<td><code>length_likelihood()</code> inside <code>gmacs_rtmb_nll_factory()</code></td>
+<td><code>Gmacsall.out</code>, <code>nloglike</code> row 3</td>
+<td>Robust multinomial likelihood matches ADMB raw components</td>
+</tr>
+<tr class="even">
+<td>Recruitment likelihood</td>
+<td><code>recruitment_likelihood()</code> inside <code>gmacs_rtmb_nll_factory()</code></td>
+<td><code>Gmacsall.out</code>, <code>nloglike</code> row 4</td>
+<td>Uses ADMB-style <code>res_recruit</code>; matches ADMB raw components</td>
+</tr>
+<tr class="odd">
+<td>Penalties</td>
+<td><code>calc_bbrkc_penalties()</code></td>
+<td><code>Gmacsall.out</code>, <code>nlogPenalty</code></td>
+<td>Raw penalty vector matches ADMB; weighted vector enters the RTMB objective</td>
+</tr>
+<tr class="even">
+<td>Priors</td>
+<td><code>calc_bbrkc_prior_density()</code></td>
+<td><code>Gmacsall.out</code>, <code>priorDensity</code></td>
+<td>Prior-density vector matches ADMB and enters the RTMB objective</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="selectivity-details" class="level2">
+<h2 class="anchored" data-anchor-id="selectivity-details">Selectivity Details</h2>
+<p>Capture selectivity:</p>
+<ul>
+<li>All BBRKC capture components are logistic.</li>
+<li>Logistic curves are normalized to the terminal size class because the control file sets <code>slx_max_at_1 = 1</code>.</li>
+<li>NMFS trawl selectivity is embedded within BSFRF selectivity, matching <code>slx_incl = 6</code>.</li>
+</ul>
+<p>Retention selectivity:</p>
+<ul>
+<li>Pot fishery male retention is logistic.</li>
+<li>The Pot male retention curve changes parameter block in 2005.</li>
+<li>Pot female and all non-Pot retention components are effectively zero retention for BBRKC.</li>
+<li>Discard selectivity is computed as <code>log(1 - retained + 1e-08)</code>, matching the ADMB template.</li>
+<li>The 1975 Pot male high-grading adjustment from <code>Asymret</code> is applied.</li>
+</ul>
+<p>Current parity command:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> run_bbrkc.R</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Current expected selectivity differences are on the order of GMACS report rounding:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Component</th>
+<th style="text-align: right;">Maximum absolute difference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Capture selectivity</td>
+<td style="text-align: right;">about <code>5e-05</code></td>
+</tr>
+<tr class="even">
+<td>Retained selectivity</td>
+<td style="text-align: right;">about <code>4e-05</code></td>
+</tr>
+<tr class="odd">
+<td>Discard selectivity</td>
+<td style="text-align: right;">about <code>4e-05</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mortality-details" class="level2">
+<h2 class="anchored" data-anchor-id="mortality-details">Mortality Details</h2>
+<p>Fishing mortality:</p>
+<ul>
+<li><code>log_fbar</code> supplies the fleet-level mean fishing mortality.</li>
+<li><code>log_fdev</code> supplies male annual/seasonal deviations for each fleet.</li>
+<li>Female F uses the fleet-level <code>log_foff</code> offset and the active <code>log_fdov</code> deviations where female catches occur.</li>
+<li>Vulnerability is computed from capture selectivity, retention selectivity, and discard mortality.</li>
+<li>Both fully selected F and continuous F-at-size are compared with <code>Gmacsall.out</code>.</li>
+</ul>
+<p>Natural mortality:</p>
+<ul>
+<li>BBRKC uses GMACS natural mortality type 6.</li>
+<li>Male base M is <code>theta[1]</code>.</li>
+<li>Female base M is relative to male M through <code>theta[2]</code>.</li>
+<li>The control file defines two natural-mortality nodes per sex, with the first deviation active over 1980-1984.</li>
+<li><code>Mdev_spec = -1</code> shares the first male M-deviation parameter with the female block, matching the ADMB template.</li>
+<li>No BBRKC size-specific M multiplier is active.</li>
+</ul>
+<p>Total mortality:</p>
+<ul>
+<li>Continuous total mortality is <code>Z = m_prop * M + F</code>.</li>
+<li>Discrete total mortality is <code>Z2 = m_prop * M + F2</code>.</li>
+<li>The survival diagonal <code>S</code> is computed from <code>Z</code> for the BBRKC season type.</li>
+</ul>
+</section>
+<section id="growth-details" class="level2">
+<h2 class="anchored" data-anchor-id="growth-details">Growth Details</h2>
+<p>Growth parameter unpacking:</p>
+<ul>
+<li>BBRKC uses growth transition option 3, where growth increments are gamma distributed.</li>
+<li>The growth increment model is empirical by size class.</li>
+<li>Male growth has one transition block.</li>
+<li>Female growth has three transition blocks, with changes in 1983 and 1994.</li>
+<li><code>Gscale</code> is handled with the BBRKC relative-beta setting, so female periods 2 and 3 inherit the period-1 scale when their fitted relative values are zero.</li>
+</ul>
+<p>Molt probability:</p>
+<ul>
+<li>BBRKC uses logistic molt probability.</li>
+<li>Both sexes define two molt-probability blocks, with a change in 1980.</li>
+<li>Female fitted values make molt probability effectively one for all modeled sizes and years.</li>
+</ul>
+<p>Growth transition:</p>
+<ul>
+<li>The transition matrix is computed from active growth parameters using the GMACS gamma-increment formula.</li>
+<li>GMACS prints <code>trans(growth_transition)</code>, so the ADMB parser explicitly treats printed rows as destination size classes and printed columns as source size classes.</li>
+<li>Gamma CDF calls use <code>RTMB::pgamma()</code> through the local <code>ad_pgamma()</code> wrapper, avoiding the previous numeric precompute from <code>gmacs.pin</code>.</li>
+</ul>
+</section>
+<section id="recruitment-and-population-details" class="level2">
+<h2 class="anchored" data-anchor-id="recruitment-and-population-details">Recruitment and Population Details</h2>
+<p>Recruitment:</p>
+<ul>
+<li>Annual recruitment is split by sex with <code>logit_rec_prop_est</code>, matching the ADMB dev-vector indexing.</li>
+<li>The first-year initial recruits use <code>logRini</code> for <code>FREEPARSSCALED</code> initial numbers.</li>
+<li>Recruitment size distribution is computed from the GMACS gamma recruitment formula and truncated at the sex-specific maximum recruitment size.</li>
+<li>Recruitment size probabilities also use <code>RTMB::pgamma()</code> through <code>ad_pgamma()</code>, so the distribution responds to active <code>theta</code> recruitment size parameters on the tape.</li>
+</ul>
+<p>Initial numbers:</p>
+<ul>
+<li>The group order follows the ADMB loops over sex, maturity, and shell.</li>
+<li>For BBRKC this produces four groups: male new shell, male old shell, female new shell, and female old shell.</li>
+<li>The first <code>logN0</code> offset is fixed at zero; the remaining 79 offsets are read from <code>theta[13:91]</code>.</li>
+<li>Initial numbers are normalized as <code>exp(logRini + logN0) / sum(exp(logN0))</code>.</li>
+</ul>
+<p>Population update:</p>
+<ul>
+<li>BBRKC uses the GMACS Case-D branch: two shell conditions, one maturity state, and no terminal molt.</li>
+<li>Survival is applied before growth and recruitment.</li>
+<li>In the growth season, molting crabs transition through the sex- and period-specific growth matrix; new-shell nonmolters become old-shell crabs.</li>
+<li>In the recruitment season, recruits enter the new-shell group by sex and recruitment size distribution.</li>
+<li>Output comparisons use <code>season_N</code> from the data file and compare total, sex-specific, and shell-specific numbers-at-size.</li>
+</ul>
+</section>
+<section id="catch-prediction-details" class="level2">
+<h2 class="anchored" data-anchor-id="catch-prediction-details">Catch Prediction Details</h2>
+<p>Mean weight:</p>
+<ul>
+<li>BBRKC uses length-weight input type 2: fixed mean weight-at-size vectors by sex and maturity.</li>
+<li>The RTMB parser reads mean weight, maturity, and legal vectors from the control file because catch observations are in mass units.</li>
+</ul>
+<p>Catch observations:</p>
+<ul>
+<li><code>calc_bbrkc_predicted_catch()</code> ports the Baranov prediction in <code>calc_predicted_catch()</code>.</li>
+<li>Retained catch uses capture selectivity times retention.</li>
+<li>Discarded catch uses capture selectivity times one minus retention.</li>
+<li>Total catch uses capture selectivity alone.</li>
+<li>Sex-specific and combined-sex catch rows are both handled.</li>
+<li>Catch rows with zero observed catch and positive effort use the GMACS catchability calculation for <code>obs_catch_effort</code>.</li>
+</ul>
+<p>Catch-at-size:</p>
+<ul>
+<li><code>calc_bbrkc_predicted_size_compositions()</code> ports the catch-like branch of <code>calc_predicted_composition()</code>.</li>
+<li>The function predicts each of the 13 input composition series, then applies the GMACS composition appender to produce the 8 modified series used in the likelihood and report.</li>
+<li>Series with <code>lf_catch_in == 2</code> are survey-like composition predictions and use numbers at size without the catch mortality multiplier.</li>
+<li>The 2021 season-1 survey-like size-composition rows use the propagated <code>nyr + 1</code> population state and the terminal modeled-year selectivity.</li>
+</ul>
+<p>Taping status:</p>
+<ul>
+<li>Catch and catch-at-size prediction helpers now use AD-compatible vector construction.</li>
+<li><code>MakeADFun()</code> tapes these predictions and reports <code>model$pre_catch</code>, <code>model$res_catch</code>, <code>model$log_q_catch</code>, and <code>model$pre_size_comps</code>.</li>
+<li>The composition report is flattened and accompanied by <code>model$size_comp_rows</code> and <code>model$size_comp_cols</code>, which reconstruct the 8 modified composition series.</li>
+</ul>
+</section>
+<section id="next-porting-steps" class="level2">
+<h2 class="anchored" data-anchor-id="next-porting-steps">Next Porting Steps</h2>
+<section id="prediction-blocks" class="level3">
+<h3 class="anchored" data-anchor-id="prediction-blocks">1. Prediction Blocks</h3>
+<p>Port or refine the remaining deterministic and objective blocks in this order:</p>
+<ol type="1">
+<li>Survey-like size-composition branch review for <code>lf_catch_in == 2</code>, using the now-active survey prediction logic as a guide.</li>
+<li>Optional growth likelihood scaffolding if active growth observations are introduced.</li>
+<li>Broader validation against additional GMACS model configurations.</li>
+</ol>
+<p>These should continue to be checked in small pieces against <code>Gmacsall.out</code> and <code>gmacs.rep</code> before likelihood components are activated.</p>
+</section>
+<section id="predictions-and-likelihoods" class="level3">
+<h3 class="anchored" data-anchor-id="predictions-and-likelihoods">2. Predictions and Likelihoods</h3>
+<p>The active likelihood blocks are:</p>
+<ul>
+<li>catch likelihood</li>
+<li>survey index likelihood</li>
+<li>robust length-composition likelihood</li>
+<li>recruitment likelihood</li>
+</ul>
+<p>Remaining likelihood work:</p>
+<ul>
+<li>survey-like size-composition likelihood checks after survey composition predictions are reconciled</li>
+<li>growth likelihood only if active growth observations are introduced</li>
+</ul>
+<p><code>run_bbrkc.R</code> now performs this audit directly after taping the objective. Each deterministic prediction change should be followed by a run that compares the active <code>nloglike</code> components, raw <code>nlogPenalty</code>, and <code>priorDensity</code> vectors against the ADMB blocks read from <code>Gmacsall.out</code>.</p>
+</section>
+</section>
+<section id="optimization-smoke-test" class="level2">
+<h2 class="anchored" data-anchor-id="optimization-smoke-test">Optimization Smoke Test</h2>
+<p>The short optimizer smoke test uses the same BBRKC parser, mapped parameter list, RTMB objective, and 366-parameter map. It is intentionally capped at a small number of iterations so it checks that the taped objective and gradient are usable without treating the result as a production fit.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> optimize_bbrkc.R</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Current smoke-test output:</p>
+<pre class="text"><code>active parameter length: 366
+initial objective: -25377.33
+finite gradient: TRUE
+max abs gradient: 28.4894
+optimizer convergence: 1
+optimizer message: iteration limit reached without convergence (10)
+final objective: -25393.89
+objective change: -16.55864</code></pre>
+</section>
+<section id="run-log" class="level2">
+<h2 class="anchored" data-anchor-id="run-log">Run Log</h2>
+<p>The current successful run reports:</p>
+<pre class="text"><code>mapped active parameters: 366
+RTMB object taped
+active parameter length: 366
+initial objective: -25377.33
+likelihood components:
+  catch RTMB=-271.2013 ADMB=-271.2013 diff=1.977e-07
+  index RTMB=-37.85266 ADMB=-37.85266 diff=5.767e-07
+  length RTMB=-25524.42 ADMB=-25524.42 diff=-3.529e-07
+  recruitment RTMB=145.2397 ADMB=145.2397 diff=-6.589e-08
+  growth RTMB=0 ADMB=0 diff=0
+raw penalty max abs diff: 1.023e-06
+raw penalty sum: 4995.897
+weighted penalty sum: 43.9388
+prior density max abs diff: 1.548e-07
+prior density sum: 266.9703
+capture selectivity max abs diff: 4.972e-05
+retained selectivity max abs diff: 4.164e-05
+discard selectivity max abs diff: 4.163e-05
+fully selected F max abs diff: 3.347e-08
+F at size max abs diff: 2.037e-08
+natural mortality max abs diff: 4.575e-09
+continuous total mortality max abs diff: 2.037e-08
+discrete total mortality max abs diff: 4.235e-08
+molt probability max abs diff: 6.996e-09
+growth transition max abs diff: 8.162e-09
+recruits max abs diff: 1.947
+N(total) max abs diff: 1.784
+N(males) max abs diff: 0.438
+N(females) max abs diff: 1.742
+N(males_new) max abs diff: 0.438
+N(females_new) max abs diff: 1.742
+N(males_old) max abs diff: 0.1004
+N(females_old) max abs diff: 2.993e-37
+catch predicted max abs diff: 7.484e-05
+catch residual max abs diff: 1.145e-08
+index predicted max abs diff: 0.0006836
+index q max abs diff: 1.483e-05
+size composition predicted max abs diff: 4.999e-05</code></pre>
+<p>The current RTMB objective includes catch, survey index, length-composition, and recruitment likelihoods plus the weighted ADMB penalty contribution. Raw likelihood components match the ADMB <code>nloglike</code> block, and raw penalty components match the ADMB <code>nlogPenalty</code> block to printed precision. The <code>priorDensity</code> vector is active and matches ADMB to numerical precision. The abundance differences above are on the scale of individual crabs while the reported arrays contain millions, so they are consistent with ADMB text-output precision.</p>
+</section>
+<section id="appendix-model-equations" class="level2">
+<h2 class="anchored" data-anchor-id="appendix-model-equations">Appendix: Model Equations</h2>
+<p>This appendix records the equation set represented by the current RTMB scaffold and the remaining GMACS equations that still need to be activated. The conversion is not complete, but the BBRKC population dynamics, growth transition matrices, recruitment size distributions, catch predictions, catch-at-size predictions, catch likelihood, robust length-composition likelihood, survey index likelihood, and recruitment likelihood are ported and taped; weighted penalties and prior densities are active.</p>
+<section id="a.-notation" class="level3">
+<h3 class="anchored" data-anchor-id="a.-notation">A. Notation</h3>
+<p>Indices:</p>
+<ul>
+<li><span class="math inline">\(i\)</span> indexes model years.</li>
+<li><span class="math inline">\(j\)</span> indexes seasons.</li>
+<li><span class="math inline">\(h\)</span> indexes sex.</li>
+<li><span class="math inline">\(m\)</span> indexes maturity state.</li>
+<li><span class="math inline">\(o\)</span> indexes shell state.</li>
+<li><span class="math inline">\(g = (h,m,o)\)</span> indexes the combined GMACS population group.</li>
+<li><span class="math inline">\(\ell\)</span> indexes size classes.</li>
+<li><span class="math inline">\(k\)</span> indexes fisheries or survey fleets.</li>
+<li><span class="math inline">\(r\)</span> indexes rows in the observation tables.</li>
+<li><span class="math inline">\(a\)</span> indexes modified size-composition series after GMACS aggregation.</li>
+</ul>
+<p>Main state and prediction quantities:</p>
+<ul>
+<li><span class="math inline">\(N_{g,i,j,\ell}\)</span> is abundance at size at the start of year <span class="math inline">\(i\)</span> and season <span class="math inline">\(j\)</span>.</li>
+<li><span class="math inline">\(S_{k,h,i,\ell}\)</span> is capture selectivity.</li>
+<li><span class="math inline">\(R_{k,h,i,\ell}\)</span> is retention probability.</li>
+<li><span class="math inline">\(V_{k,h,i,\ell}\)</span> is the fully selected fishing mortality multiplier at size.</li>
+<li><span class="math inline">\(F_{h,i,j,\ell}\)</span> is fishing mortality at size after summing over active fleets.</li>
+<li><span class="math inline">\(M_{h,m,i,\ell}\)</span> is natural mortality at size.</li>
+<li><span class="math inline">\(Z_{h,m,i,j,\ell}\)</span> is total mortality for continuous seasons.</li>
+<li><span class="math inline">\(G_{h,i,\ell,\ell'}\)</span> is the growth transition matrix.</li>
+<li><span class="math inline">\(P^{\mathrm{molt}}_{h,i,\ell}\)</span> is molt probability.</li>
+<li><span class="math inline">\(\widehat{C}_r\)</span> is predicted catch for observation row <span class="math inline">\(r\)</span>.</li>
+<li><span class="math inline">\(\widehat{p}_{a,\ell}\)</span> is predicted size composition for modified composition series <span class="math inline">\(a\)</span>.</li>
+</ul>
+<p>BBRKC uses the four group states male-new, male-old, female-new, and female-old. Immature crab are not active in this model configuration, but the RTMB arrays preserve the GMACS group structure.</p>
+</section>
+<section id="b.-population-dynamics" class="level3">
+<h3 class="anchored" data-anchor-id="b.-population-dynamics">B. Population Dynamics</h3>
+<section id="leading-parameters" class="level4">
+<h4 class="anchored" data-anchor-id="leading-parameters">Leading Parameters</h4>
+<p>The male base natural mortality and female multiplier are represented by leading parameters:</p>
+<p><span class="math display">\[
+M^0_{\mathrm{male}} = \theta_1,
+\qquad
+M^0_{\mathrm{female}} = \theta_1 \exp(\theta_2).
+\]</span></p>
+<p>Mean recruitment is parameterized on the log scale:</p>
+<p><span class="math display">\[
+\bar{R} = \exp(\theta_5).
+\]</span></p>
+<details>
+<summary>
+R implementation: leading parameter unpacking
+</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>initialize_bbrkc_model_parameters <span class="ot">&lt;-</span> <span class="cf">function</span>(par, data, <span class="at">predictions =</span> <span class="cn">TRUE</span>) {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  theta <span class="ot">&lt;-</span> par<span class="sc">$</span>theta</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  m0 <span class="ot">&lt;-</span> <span class="fu">c</span>(theta[<span class="dv">1</span>], theta[<span class="dv">1</span>] <span class="sc">*</span> <span class="fu">exp</span>(theta[<span class="dv">2</span>]))</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  model <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">M0 =</span> m0,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">logR0 =</span> theta[<span class="dv">3</span>],</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">logRini =</span> theta[<span class="dv">4</span>],</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">logRbar =</span> theta[<span class="dv">5</span>],</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">logSigmaR =</span> theta[<span class="dv">10</span>],</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">rho =</span> theta[<span class="dv">12</span>]</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  ...</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</section>
+<section id="initial-abundance" class="level4">
+<h4 class="anchored" data-anchor-id="initial-abundance">Initial Abundance</h4>
+<p>GMACS stores the initial numbers-at-size as scaled free parameters. The RTMB port follows the ADMB convention by setting the first log-scale element to zero and reading the remaining elements from the active <code>theta</code> block:</p>
+<p><span class="math display">\[
+\log \widetilde{N}_{g,\ell} =
+\begin{cases}
+0, &amp; (g,\ell) = (1,1),\\
+\theta_q, &amp; \text{otherwise}.
+\end{cases}
+\]</span></p>
+<p>Initial abundance is normalized and scaled by initial recruitment:</p>
+<p><span class="math display">\[
+N_{g,i_0,1,\ell}
+=
+\exp(\log R_{\mathrm{init}})
+\frac{\exp(\log \widetilde{N}_{g,\ell})}
+{\sum_{g'}\sum_{\ell'} \exp(\log \widetilde{N}_{g',\ell'})}.
+\]</span></p>
+</section>
+<section id="recruitment" class="level4">
+<h4 class="anchored" data-anchor-id="recruitment">Recruitment</h4>
+<p>Annual recruitment deviations are additive on the log scale. Sex allocation is controlled by a logit-scale recruitment proportion:</p>
+<p><span class="math display">\[
+p_i = \operatorname{logit}^{-1}(\eta_i),
+\]</span></p>
+<p><span class="math display">\[
+R_{\mathrm{male},i}
+=
+2 \exp(\log \bar{R} + d_i) p_i,
+\qquad
+R_{\mathrm{female},i}
+=
+2 \exp(\log \bar{R} + d_i) (1 - p_i).
+\]</span></p>
+<p>Recruitment enters the new-shell group according to the recruitment size distribution <span class="math inline">\(\rho_{h,\ell}\)</span>:</p>
+<p><span class="math display">\[
+N_{\mathrm{new},h,i,1,\ell}
+\leftarrow
+N_{\mathrm{new},h,i,1,\ell}
++ R_{h,i}\rho_{h,\ell}.
+\]</span></p>
+<details>
+<summary>
+R implementation: recruitment and sex split
+</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>calc_bbrkc_recruits <span class="ot">&lt;-</span> <span class="cf">function</span>(par, data, model) {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  rec_rows <span class="ot">&lt;-</span> years <span class="sc">&gt;=</span> controls<span class="sc">$</span>rdv_syr <span class="sc">&amp;</span> years <span class="sc">&lt;=</span> controls<span class="sc">$</span>rdv_eyr</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  rec_dev[rec_rows] <span class="ot">&lt;-</span> par<span class="sc">$</span>rec_dev_est[<span class="fu">seq_len</span>(<span class="fu">sum</span>(rec_rows))]</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  logit_rec_prop[rec_rows] <span class="ot">&lt;-</span> par<span class="sc">$</span>logit_rec_prop_est[<span class="fu">seq_len</span>(<span class="fu">sum</span>(rec_rows))]</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (iy <span class="cf">in</span> <span class="fu">seq_len</span>(n_years)) {</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    total_recruitment <span class="ot">&lt;-</span> <span class="fu">exp</span>(model<span class="sc">$</span>logRbar) <span class="sc">*</span> nsex</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    total_recruitment <span class="ot">&lt;-</span> total_recruitment <span class="sc">*</span> <span class="fu">exp</span>(rec_dev[iy])</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    male_prop <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>logit_rec_prop[iy]))</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    recruits[<span class="dv">1</span>, iy] <span class="ot">&lt;-</span> total_recruitment <span class="sc">*</span> male_prop</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    recruits[<span class="dv">2</span>, iy] <span class="ot">&lt;-</span> total_recruitment <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> male_prop)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</section>
+<section id="natural-mortality" class="level4">
+<h4 class="anchored" data-anchor-id="natural-mortality">Natural Mortality</h4>
+<p>For sex <span class="math inline">\(h\)</span> and maturity state <span class="math inline">\(m\)</span>, natural mortality is</p>
+<p><span class="math display">\[
+M_{h,m,i,\ell}
+=
+M^0_h \exp(\delta_{h,b(i)}) Q_{h,m,\ell},
+\]</span></p>
+<p>where <span class="math inline">\(\delta_{h,b(i)}\)</span> is the block-specific natural-mortality deviation and <span class="math inline">\(Q_{h,m,\ell}\)</span> is an optional size-specific multiplier. In the current BBRKC input, the active size-specific multiplier is effectively one:</p>
+<p><span class="math display">\[
+Q_{h,m,\ell} = 1.
+\]</span></p>
+</section>
+<section id="selectivity-retention-and-fishing-mortality" class="level4">
+<h4 class="anchored" data-anchor-id="selectivity-retention-and-fishing-mortality">Selectivity, Retention, and Fishing Mortality</h4>
+<p>The port currently supports the logistic GMACS selectivity form used by the BBRKC fleets:</p>
+<p><span class="math display">\[
+s_{k,h,i,\ell}
+=
+\frac{
+\left[1 + \exp\left\{-(L_\ell - x_{50,k,h,i})/\gamma_{k,h,i}\right\}\right]^{-1}
+}
+{\max_{\ell'} \left[1 + \exp\left\{-(L_{\ell'} - x_{50,k,h,i})/\gamma_{k,h,i}\right\}\right]^{-1}},
+\]</span></p>
+<p>where <span class="math inline">\(L_\ell\)</span> is the size-bin midpoint, <span class="math inline">\(x_{50}\)</span> is the size at 50 percent selection, and <span class="math inline">\(\gamma\)</span> controls the slope. Retention uses the same logistic form with retention-specific parameters:</p>
+<p><span class="math display">\[
+r_{k,h,i,\ell}
+=
+\left[1 + \exp\left\{-(L_\ell - x^{R}_{50,k,h,i})/\gamma^R_{k,h,i}\right\}\right]^{-1}.
+\]</span></p>
+<p>The fleet-specific availability multiplier combines capture selectivity, retention, and the high-grading or discard mortality term <span class="math inline">\(\xi_k\)</span>:</p>
+<p><span class="math display">\[
+V_{k,h,i,\ell}
+=
+s_{k,h,i,\ell}
+\,\left[
+r_{k,h,i,\ell}
++ (1-r_{k,h,i,\ell})\xi_k
+\right].
+\]</span></p>
+<p>Fully selected fleet mortality is</p>
+<p><span class="math display">\[
+f_{k,h,i,j} = \exp(\log f_{k,h,i,j}),
+\]</span></p>
+<p>and total fishing mortality at size is summed over active fleets:</p>
+<p><span class="math display">\[
+F_{h,i,j,\ell}
+=
+\sum_k f_{k,h,i,j} V_{k,h,i,\ell}.
+\]</span></p>
+<details>
+<summary>
+R implementation: selectivity, retention, and fishing mortality
+</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>calc_bbrkc_fishing_mortality <span class="ot">&lt;-</span> <span class="cf">function</span>(par, data, model) {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (fleet <span class="cf">in</span> <span class="fu">seq_len</span>(nfleet)) {</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (sex <span class="cf">in</span> <span class="fu">seq_len</span>(nsex)) {</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>      ...</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>      sel <span class="ot">&lt;-</span> <span class="fu">exp</span>(model<span class="sc">$</span>log_slx_capture[fleet, sex, iy, ]) <span class="sc">+</span> <span class="fl">1e-10</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>      ret <span class="ot">&lt;-</span> <span class="fu">exp</span>(model<span class="sc">$</span>log_slx_retaind[fleet, sex, iy, ]) <span class="sc">*</span> slx_nret[sex, fleet]</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>      vul <span class="ot">&lt;-</span> sel <span class="sc">*</span> (ret <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> ret) <span class="sc">*</span> xi)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>      F[sex, iy, season, ] <span class="ot">&lt;-</span> F[sex, iy, season, ] <span class="sc">+</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        ft[fleet, sex, iy, season] <span class="sc">*</span> vul</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>      F2[sex, iy, season, ] <span class="ot">&lt;-</span> F2[sex, iy, season, ] <span class="sc">+</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        ft[fleet, sex, iy, season] <span class="sc">*</span> sel</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</section>
+<section id="total-mortality-and-survival" class="level4">
+<h4 class="anchored" data-anchor-id="total-mortality-and-survival">Total Mortality and Survival</h4>
+<p>Continuous-season total mortality is</p>
+<p><span class="math display">\[
+Z_{h,m,i,j,\ell}
+=
+\tau^M_j M_{h,m,i,\ell}
++ F_{h,i,j,\ell},
+\]</span></p>
+<p>where <span class="math inline">\(\tau^M_j\)</span> is the proportion of annual natural mortality applied in season <span class="math inline">\(j\)</span>. Survival through the season is</p>
+<p><span class="math display">\[
+\phi_{h,m,i,j,\ell} = \exp(-Z_{h,m,i,j,\ell}).
+\]</span></p>
+<p>For discrete-season accounting, GMACS also stores the equivalent annualized total mortality used for reporting:</p>
+<p><span class="math display">\[
+Z^{D}_{h,m,i,j,\ell}
+=
+\frac{-\log\left[
+1 -
+\left[
+1 - \exp\left\{
+-(\tau^M_j M_{h,m,i,\ell} + F_{h,i,j,\ell})
+\right\}
+\right]
+\right]}
+\tau_j,
+\]</span></p>
+<p>where <span class="math inline">\(\tau_j\)</span> is the modeled season length.</p>
+</section>
+<section id="molting-and-growth" class="level4">
+<h4 class="anchored" data-anchor-id="molting-and-growth">Molting and Growth</h4>
+<p>The molt probability is represented as a declining logistic curve:</p>
+<p><span class="math display">\[
+P^{\mathrm{molt}}_{h,i,\ell}
+=
+1 -
+\left[
+1 + \exp\left\{-\frac{L_\ell-\mu^{\mathrm{molt}}_{h,i}}
+{\sigma^{\mathrm{molt}}_{h,i}}\right\}
+\right]^{-1}.
+\]</span></p>
+<p>Growth is represented by a transition matrix <span class="math inline">\(G_{h,i,\ell,\ell'}\)</span>:</p>
+<p><span class="math display">\[
+G_{h,i,\ell,\ell'} =
+\Pr(L_{\ell'} \mid L_\ell,\ h,\ i),
+\qquad
+\sum_{\ell'} G_{h,i,\ell,\ell'} = 1.
+\]</span></p>
+<p>The current RTMB port computes the same transition matrix as ADMB to text-output precision, using the BBRKC molt-increment controls and the same terminal-bin normalization.</p>
+<details>
+<summary>
+R implementation: molt probability and growth transition
+</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>calc_bbrkc_molting_probability <span class="ot">&lt;-</span> <span class="cf">function</span>(growth, data) {</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (sex <span class="cf">in</span> <span class="fu">seq_len</span>(nsex)) {</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    location <span class="ot">&lt;-</span> growth<span class="sc">$</span>molt_mu[sex]</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    scale <span class="ot">&lt;-</span> growth<span class="sc">$</span>molt_mu[sex] <span class="sc">*</span> growth<span class="sc">$</span>molt_cv[sex]</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    out[sex, ] <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">plogis_gmacs</span>(data<span class="sc">$</span>mid_points, location, scale)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  out</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>calc_bbrkc_growth_transition <span class="ot">&lt;-</span> <span class="cf">function</span>(growth, data) {</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (sex <span class="cf">in</span> <span class="fu">seq_len</span>(nsex)) {</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (from <span class="cf">in</span> <span class="fu">seq_len</span>(nclass)) {</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>      cdf <span class="ot">&lt;-</span> <span class="fu">ad_pgamma</span>(data<span class="sc">$</span>size_breaks <span class="sc">-</span> data<span class="sc">$</span>mid_points[from],</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">shape =</span> shape[from], <span class="at">scale =</span> scale</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>      probs <span class="ot">&lt;-</span> <span class="fu">diff</span>(cdf)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>      out[sex, from, ] <span class="ot">&lt;-</span> probs <span class="sc">/</span> <span class="fu">sum</span>(probs)</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  out</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</section>
+<section id="season-and-year-propagation" class="level4">
+<h4 class="anchored" data-anchor-id="season-and-year-propagation">Season and Year Propagation</h4>
+<p>Let post-mortality abundance be</p>
+<p><span class="math display">\[
+\widetilde{N}_{g,i,j,\ell}
+=
+N_{g,i,j,\ell}\phi_{h,m,i,j,\ell}.
+\]</span></p>
+<p>For new-shell crab, the nonmolting component moves to old shell and the molting component remains new shell after growth:</p>
+<p><span class="math display">\[
+N^{\mathrm{old}}_{h,i,j+1,\ell}
+\leftarrow
+N^{\mathrm{old}}_{h,i,j+1,\ell}
++ \widetilde{N}^{\mathrm{new}}_{h,i,j,\ell}
+\left(1-P^{\mathrm{molt}}_{h,i,\ell}\right),
+\]</span></p>
+<p><span class="math display">\[
+N^{\mathrm{new}}_{h,i,j+1,\ell'}
+\leftarrow
+N^{\mathrm{new}}_{h,i,j+1,\ell'}
++ \sum_\ell
+\widetilde{N}^{\mathrm{new}}_{h,i,j,\ell}
+P^{\mathrm{molt}}_{h,i,\ell}
+G_{h,i,\ell,\ell'}.
+\]</span></p>
+<p>For old-shell crab, the nonmolting component remains old shell and the molting component returns to new shell after growth:</p>
+<p><span class="math display">\[
+N^{\mathrm{old}}_{h,i,j+1,\ell}
+\leftarrow
+N^{\mathrm{old}}_{h,i,j+1,\ell}
++ \widetilde{N}^{\mathrm{old}}_{h,i,j,\ell}
+\left(1-P^{\mathrm{molt}}_{h,i,\ell}\right),
+\]</span></p>
+<p><span class="math display">\[
+N^{\mathrm{new}}_{h,i,j+1,\ell'}
+\leftarrow
+N^{\mathrm{new}}_{h,i,j+1,\ell'}
++ \sum_\ell
+\widetilde{N}^{\mathrm{old}}_{h,i,j,\ell}
+P^{\mathrm{molt}}_{h,i,\ell}
+G_{h,i,\ell,\ell'}.
+\]</span></p>
+<p>At the terminal season, the propagated state becomes the first season of the next modeled year.</p>
+<details>
+<summary>
+R implementation: population update
+</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>calc_bbrkc_population_numbers <span class="ot">&lt;-</span> <span class="cf">function</span>(par, data, model) {</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (iy <span class="cf">in</span> <span class="fu">seq_len</span>(n_years)) {</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (season <span class="cf">in</span> <span class="fu">seq_len</span>(nseason)) {</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> (group <span class="cf">in</span> <span class="fu">seq_len</span>(n_groups)) {</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>        survived <span class="ot">&lt;-</span> N[group, iy, season, ] <span class="sc">*</span> model<span class="sc">$</span>S[sex, maturity, iy, season, ]</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        molted <span class="ot">&lt;-</span> survived <span class="sc">*</span> model<span class="sc">$</span>molt_probability[sex, ]</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        not_molted <span class="ot">&lt;-</span> survived <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> model<span class="sc">$</span>molt_probability[sex, ])</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        grown <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(molted <span class="sc">%*%</span> model<span class="sc">$</span>growth_transition[sex, , ])</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        ...</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</section>
+</section>
+<section id="c.-observation-and-prediction-equations" class="level3">
+<h3 class="anchored" data-anchor-id="c.-observation-and-prediction-equations">C. Observation and Prediction Equations</h3>
+<section id="catch-predictions" class="level4">
+<h4 class="anchored" data-anchor-id="catch-predictions">Catch Predictions</h4>
+<p>For catch observation row <span class="math inline">\(r\)</span>, let <span class="math inline">\(k(r)\)</span> be the fleet, <span class="math inline">\(i(r)\)</span> the year, <span class="math inline">\(j(r)\)</span> the season, <span class="math inline">\(H_r\)</span> the included sexes, and <span class="math inline">\(T_r\)</span> the catch type. The catch-type availability is</p>
+<p><span class="math display">\[
+A^{T_r}_{k,h,i,\ell} =
+\begin{cases}
+s_{k,h,i,\ell}, &amp; T_r = \mathrm{capture},\\
+s_{k,h,i,\ell} r_{k,h,i,\ell}, &amp; T_r = \mathrm{retained},\\
+s_{k,h,i,\ell} (1-r_{k,h,i,\ell}), &amp; T_r = \mathrm{discard}.
+\end{cases}
+\]</span></p>
+<p>Predicted catch uses the Baranov catch equation:</p>
+<p><span class="math display">\[
+\widehat{C}_r
+=
+\sum_{h \in H_r}\sum_m\sum_o\sum_\ell
+W^{u_r}_{h,m,\ell}
+N_{h,m,o,i(r),j(r),\ell}
+f_{k(r),h,i(r),j(r)}
+A^{T_r}_{k(r),h,i(r),\ell}
+\frac{1-\exp[-Z_{h,m,i(r),j(r),\ell}]}
+{Z_{h,m,i(r),j(r),\ell}},
+\]</span></p>
+<p>where <span class="math inline">\(u_r\)</span> determines whether the observation is in numbers or biomass:</p>
+<p><span class="math display">\[
+W^{u_r}_{h,m,\ell} =
+\begin{cases}
+1, &amp; u_r = \mathrm{numbers},\\
+w_{h,m,\ell}, &amp; u_r = \mathrm{biomass}.
+\end{cases}
+\]</span></p>
+<p>The catch residual currently reported by RTMB is</p>
+<p><span class="math display">\[
+e^{C}_r = \log(C^{\mathrm{obs}}_r) - \log(\widehat{C}_r).
+\]</span></p>
+<p>When GMACS treats catch as effort with analytic catchability, the same predicted catch vector is used to estimate</p>
+<p><span class="math display">\[
+\log \widehat{q}_r =
+\log(C^{\mathrm{obs}}_r) - \log(\widehat{C}_r).
+\]</span></p>
+<details>
+<summary>
+R implementation: catch prediction
+</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>calc_bbrkc_predicted_catch <span class="ot">&lt;-</span> <span class="cf">function</span>(data, model) {</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (series <span class="cf">in</span> <span class="fu">seq_along</span>(data<span class="sc">$</span>catch<span class="sc">$</span>frames)) {</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (row <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(frame))) {</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>      ...</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>      nal <span class="ot">&lt;-</span> <span class="fu">calc_bbrkc_catch_weighted_numbers</span>(</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>        model, data, sex, maturity, group, year_index, season, units</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>      mult <span class="ot">&lt;-</span> <span class="fu">calc_bbrkc_catch_mortality_multiplier</span>(</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>        model, data, sex, maturity, year_index, season</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>      pre <span class="ot">&lt;-</span> pre <span class="sc">+</span> <span class="fu">sum</span>(nal <span class="sc">*</span> model<span class="sc">$</span>ft[fleet, sex, year_index, season] <span class="sc">*</span> sel <span class="sc">*</span> mult)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>      residual <span class="ot">&lt;-</span> <span class="fu">log</span>(cobs) <span class="sc">-</span> <span class="fu">log</span>(pre)</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</section>
+<section id="size-composition-predictions" class="level4">
+<h4 class="anchored" data-anchor-id="size-composition-predictions">Size-Composition Predictions</h4>
+<p>For catch-like size-composition rows, the unnormalized predicted count at size uses the same catch mortality multiplier as the catch equation:</p>
+<p><span class="math display">\[
+D_{r,\ell}
+=
+\sum_{h \in H_r}\sum_m\sum_o
+N_{h,m,o,i(r),j(r),\ell}
+f_{k(r),h,i(r),j(r)}
+A^{T_r}_{k(r),h,i(r),\ell}
+\frac{1-\exp[-Z_{h,m,i(r),j(r),\ell}]}
+{Z_{h,m,i(r),j(r),\ell}}.
+\]</span></p>
+<p>For survey-like size-composition rows, the prediction is based on selected numbers at size:</p>
+<p><span class="math display">\[
+D_{r,\ell}
+=
+\sum_{h \in H_r}\sum_m\sum_o
+N_{h,m,o,i(r),j(r),\ell}
+A^{T_r}_{k(r),h,i(r),\ell}.
+\]</span></p>
+<p>After optional tail compression, rows assigned to the same modified composition series <span class="math inline">\(a\)</span> are accumulated and normalized:</p>
+<p><span class="math display">\[
+\widehat{p}_{a,\ell}
+=
+\frac{\sum_{r \in a} D_{r,\ell}}
+{\sum_{\ell'}\sum_{r \in a} D_{r,\ell'}}.
+\]</span></p>
+<p>The current RTMB report stores this as a flat vector <code>model$pre_size_comps</code>, with dimensions carried by <code>model$size_comp_rows</code> and <code>model$size_comp_cols</code>.</p>
+<details>
+<summary>
+R implementation: size-composition prediction and aggregation
+</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>calc_bbrkc_predicted_size_compositions <span class="ot">&lt;-</span> <span class="cf">function</span>(data, model) {</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (series <span class="cf">in</span> <span class="fu">seq_len</span>(n_input)) {</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    ...</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (controls<span class="sc">$</span>lf_catch_in[series] <span class="sc">==</span> <span class="dv">1</span>L) {</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>      mult <span class="ot">&lt;-</span> <span class="fu">calc_bbrkc_catch_mortality_multiplier</span>(...)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>      mult <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, data<span class="sc">$</span>dimensions[[<span class="st">"nclass"</span>]])</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    dntmp <span class="ot">&lt;-</span> dntmp <span class="sc">+</span> model<span class="sc">$</span>N[group, year_index, season, ] <span class="sc">*</span> sel <span class="sc">*</span> mult</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (modified <span class="cf">in</span> <span class="fu">seq_len</span>(n_modified)) {</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    input_series <span class="ot">&lt;-</span> <span class="fu">which</span>(controls<span class="sc">$</span>comp_aggregator <span class="sc">==</span> modified)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    row_pred <span class="ot">&lt;-</span> <span class="fu">do.call</span>(c, row_values)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    pred_rows[[row]] <span class="ot">&lt;-</span> row_pred <span class="sc">/</span> <span class="fu">sum</span>(row_pred)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</section>
+<section id="survey-index-predictions" class="level4">
+<h4 class="anchored" data-anchor-id="survey-index-predictions">Survey Index Predictions</h4>
+<p>Survey abundance and biomass predictions are active in RTMB. For survey row <span class="math inline">\(r\)</span>, the vulnerable selected abundance or biomass before catchability scaling is</p>
+<p><span class="math display">\[
+V_r
+=
+\sum_{h \in H_r}\sum_m\sum_o\sum_\ell
+W^{u_r}_{h,m,\ell}
+N_{h,m,o,i(r),j(r),\ell}
+B_{k(r),h,i(r),\ell},
+\]</span></p>
+<p>where <span class="math inline">\(B_{k,h,i,\ell}\)</span> is survey selectivity, optionally including retention or other survey-specific availability modifiers depending on the GMACS survey type. If the survey occurs after part of the season has elapsed, the selected numbers are discounted by <span class="math inline">\(\exp(-t_r Z_{h,m,i,j,\ell})\)</span> before summation.</p>
+<p>Predicted index is</p>
+<p><span class="math display">\[
+\widehat{I}_r = q_{s(r)} V_r,
+\]</span></p>
+<p>where <span class="math inline">\(s(r)\)</span> is the survey series. For analytic catchability,</p>
+<p><span class="math display">\[
+\log \widehat{q}_{k}
+=
+\frac{
+\sum_{r \in k} \omega_r
+\left[\log(I^{\mathrm{obs}}_r) - \log(\widehat{I}_r/q_k)\right]
+}{
+\sum_{r \in k} \omega_r
+}.
+\]</span></p>
+<p>The BBRKC run currently estimates or fixes survey q directly from the <code>.pin</code> state rather than using analytic q. The reported RTMB <code>model$pre_cpue</code> vector is checked against <code>#Index_fit_summary</code> in <code>Gmacsall.out</code>.</p>
+<details>
+<summary>
+R implementation: survey prediction
+</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>calc_bbrkc_predicted_survey <span class="ot">&lt;-</span> <span class="cf">function</span>(par, data, model) {</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (row <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(survey))) {</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    ...</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    survey_availability <span class="ot">&lt;-</span> <span class="cf">if</span> (data<span class="sc">$</span>survey<span class="sc">$</span>index_type[series] <span class="sc">==</span> <span class="dv">2</span>L) {</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>      sel <span class="sc">*</span> ret</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>      sel</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    nal <span class="ot">&lt;-</span> <span class="fu">calc_bbrkc_survey_weighted_numbers</span>(</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>      model, data, sex, maturity, group, year_index, season, units</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    row_v <span class="ot">&lt;-</span> row_v <span class="sc">+</span> <span class="fu">sum</span>(nal <span class="sc">*</span> survey_availability <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>z_at_time))</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  pred <span class="ot">&lt;-</span> survey_q_vec[series] <span class="sc">*</span> vulnerable_vec[row]</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  pre_cpue[[row]] <span class="ot">&lt;-</span> pred</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  res_cpue[[row]] <span class="ot">&lt;-</span> <span class="fu">log</span>(survey<span class="sc">$</span>obs[row]) <span class="sc">-</span> <span class="fu">log</span>(pred)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</section>
+</section>
+<section id="d.-model-fitting-and-likelihoods" class="level3">
+<h3 class="anchored" data-anchor-id="d.-model-fitting-and-likelihoods">D. Model Fitting and Likelihoods</h3>
+<p>The current RTMB objective includes the likelihood components whose prediction vectors have been ported and validated:</p>
+<p><span class="math display">\[
+\mathcal{L}
+=
+\mathcal{L}_{\mathrm{catch}}
++ \mathcal{L}_{\mathrm{comp}}
++ \mathcal{L}_{\mathrm{survey}}
++ \mathcal{L}_{\mathrm{recruit}}
++ \mathcal{P}_{\mathrm{weighted}}
++ \mathcal{D}_{\mathrm{prior}}
++ 0_{\mathrm{growth}}
+\]</span></p>
+<p>Weighted penalties and prior densities are active in the objective. Growth likelihood is zero because the current BBRKC data file has no active growth observations.</p>
+<details>
+<summary>
+R implementation: objective assembly
+</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>nloglike <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">catch =</span> <span class="fu">sum</span>(catch_nloglike <span class="sc">*</span> data<span class="sc">$</span>likelihood_emphasis<span class="sc">$</span>catch),</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">index =</span> <span class="fu">sum</span>(index_nloglike <span class="sc">*</span> data<span class="sc">$</span>likelihood_emphasis<span class="sc">$</span>cpue_emphasis),</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">length =</span> <span class="fu">sum</span>(length_nloglike <span class="sc">*</span> data<span class="sc">$</span>observed_size_compositions<span class="sc">$</span>emphasis),</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">recruitment =</span> <span class="fu">sum</span>(recruitment_nloglike),</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">growth =</span> growth_nloglike</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>nll <span class="sc">+</span> <span class="fu">sum</span>(nloglike) <span class="sc">+</span> <span class="fu">sum</span>(weighted_nlog_penalty) <span class="sc">+</span> <span class="fu">sum</span>(prior_density)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<section id="catch-likelihood" class="level4">
+<h4 class="anchored" data-anchor-id="catch-likelihood">Catch Likelihood</h4>
+<p>For lognormal catch observations,</p>
+<p><span class="math display">\[
+\sigma^C_r = \sqrt{\log(1 + \mathrm{cv}_{r}^{2})},
+\qquad
+e^C_r = \log(C^{\mathrm{obs}}_r) - \log(\widehat{C}_r),
+\]</span></p>
+<p>and the contribution is</p>
+<p><span class="math display">\[
+\mathcal{L}_{\mathrm{catch}}
+=
+\sum_r \lambda^C_r
+\left[
+\frac{1}{2}\left(\frac{e^C_r}{\sigma^C_r}\right)^2
++ \log(\sigma^C_r\sqrt{2\pi})
+\right].
+\]</span></p>
+<p>Rows configured as effort observations use the same residual form after applying the analytic or estimated catchability parameter.</p>
+<details>
+<summary>
+R implementation: catch likelihood
+</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>admb_dnorm_nll <span class="ot">&lt;-</span> <span class="cf">function</span>(x, sd, <span class="at">mean =</span> <span class="dv">0</span>) {</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(<span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">log</span>(<span class="dv">2</span> <span class="sc">*</span> pi) <span class="sc">+</span> <span class="fu">log</span>(sd) <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> ((x <span class="sc">-</span> mean) <span class="sc">/</span> sd)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>catch_likelihood <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">"list"</span>, <span class="fu">length</span>(data<span class="sc">$</span>catch<span class="sc">$</span>frames))</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  start <span class="ot">&lt;-</span> <span class="dv">1</span>L</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (series <span class="cf">in</span> <span class="fu">seq_along</span>(data<span class="sc">$</span>catch<span class="sc">$</span>frames)) {</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    frame <span class="ot">&lt;-</span> data<span class="sc">$</span>catch<span class="sc">$</span>frames[[series]]</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    rows <span class="ot">&lt;-</span> <span class="fu">nrow</span>(frame)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    idx <span class="ot">&lt;-</span> start<span class="sc">:</span>(start <span class="sc">+</span> rows <span class="sc">-</span> <span class="dv">1</span>L)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    catch_sd <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> frame<span class="sc">$</span>cv<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    out[[series]] <span class="ot">&lt;-</span> <span class="fu">admb_dnorm_nll</span>(model<span class="sc">$</span>res_catch[idx], catch_sd)</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    start <span class="ot">&lt;-</span> start <span class="sc">+</span> rows</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">do.call</span>(c, out)</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</section>
+<section id="survey-likelihood" class="level4">
+<h4 class="anchored" data-anchor-id="survey-likelihood">Survey Likelihood</h4>
+<p>For lognormal survey index observations with optional additive process error,</p>
+<p><span class="math display">\[
+\sigma^I_r
+=
+\sqrt{\log\left(1 + \mathrm{cv}_{r}^{2}\right)
++ \sigma^2_{\mathrm{add},k(r)}},
+\]</span></p>
+<p><span class="math display">\[
+e^I_r = \log(I^{\mathrm{obs}}_r) - \log(\widehat{I}_r),
+\]</span></p>
+<p><span class="math display">\[
+\mathcal{L}_{\mathrm{survey}}
+=
+\sum_r \lambda^I_r
+\left[
+\frac{1}{2}\left(\frac{e^I_r}{\sigma^I_r}\right)^2
++ \log(\sigma^I_r\sqrt{2\pi})
+\right].
+\]</span></p>
+<details>
+<summary>
+R implementation: survey likelihood
+</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>index_likelihood <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (series <span class="cf">in</span> <span class="fu">seq_along</span>(out)) {</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    rows <span class="ot">&lt;-</span> <span class="fu">which</span>(survey<span class="sc">$</span>index <span class="sc">==</span> series)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (row <span class="cf">in</span> rows) {</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>      cvadd2 <span class="ot">&lt;-</span> <span class="cf">if</span> (controls<span class="sc">$</span>add_cv_links[series] <span class="sc">&gt;</span> <span class="dv">0</span>L) {</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(par<span class="sc">$</span>log_add_cv[controls<span class="sc">$</span>add_cv_links[series]])<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>        <span class="dv">0</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>      cvobs2 <span class="ot">&lt;-</span> <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> survey<span class="sc">$</span>cv[row]<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> controls<span class="sc">$</span>cpue_lambda[series]</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>      stdtmp <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(cvobs2 <span class="sc">+</span> cvadd2)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>      nll_series <span class="ot">&lt;-</span> nll_series <span class="sc">+</span> <span class="fu">log</span>(stdtmp) <span class="sc">+</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>        <span class="fl">0.5</span> <span class="sc">*</span> (model<span class="sc">$</span>res_cpue[row] <span class="sc">/</span> stdtmp)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</section>
+<section id="size-composition-likelihood" class="level4">
+<h4 class="anchored" data-anchor-id="size-composition-likelihood">Size-Composition Likelihood</h4>
+<p>For multinomial size compositions with effective sample size <span class="math inline">\(n_a\)</span> and observed proportions <span class="math inline">\(p^{\mathrm{obs}}_{a,\ell}\)</span>,</p>
+<p><span class="math display">\[
+\mathcal{L}_{\mathrm{comp},a}
+=
+-\lambda_a n_a
+\sum_\ell
+p^{\mathrm{obs}}_{a,\ell}
+\log(\widehat{p}_{a,\ell}).
+\]</span></p>
+<p>GMACS also supports robust and Dirichlet-like composition likelihoods. A Dirichlet form can be written as</p>
+<p><span class="math display">\[
+\alpha_{a,\ell} = n_a \widehat{p}_{a,\ell},
+\]</span></p>
+<p><span class="math display">\[
+\mathcal{L}_{\mathrm{Dirichlet},a}
+=
+-
+\left[
+\log\Gamma\left(\sum_\ell \alpha_{a,\ell}\right)
+- \sum_\ell \log\Gamma(\alpha_{a,\ell})
++ \sum_\ell
+(\alpha_{a,\ell}-1)\log(p^{\mathrm{obs}}_{a,\ell})
+\right].
+\]</span></p>
+<p>The active BBRKC likelihood type should be ported from the parsed <code>size_comp_controls$likelihood_type_in</code> values rather than hard-coded.</p>
+<details>
+<summary>
+R implementation: robust multinomial likelihood used by BBRKC
+</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>robust_multinomial_nll_flat <span class="ot">&lt;-</span> <span class="cf">function</span>(obs, pred, log_effn) {</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  eps <span class="ot">&lt;-</span> <span class="fl">1e-08</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  nll <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  cols <span class="ot">&lt;-</span> <span class="fu">ncol</span>(obs)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fl">0.1</span> <span class="sc">/</span> cols</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  effn <span class="ot">&lt;-</span> <span class="fu">exp</span>(log_effn)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(obs))) {</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    row_start <span class="ot">&lt;-</span> (i <span class="sc">-</span> <span class="dv">1</span>L) <span class="sc">*</span> cols</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    psum <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">seq_len</span>(cols)) {</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>      psum <span class="ot">&lt;-</span> psum <span class="sc">+</span> pred[row_start <span class="sc">+</span> j] <span class="sc">+</span> eps</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    o <span class="ot">&lt;-</span> obs[i, ] <span class="sc">+</span> eps</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    o <span class="ot">&lt;-</span> o <span class="sc">/</span> <span class="fu">sum</span>(o)</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">seq_len</span>(cols)) {</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>      p <span class="ot">&lt;-</span> (pred[row_start <span class="sc">+</span> j] <span class="sc">+</span> eps) <span class="sc">/</span> psum</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>      v <span class="ot">&lt;-</span> a <span class="sc">+</span> o[j] <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> o[j])</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>      ell <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">*</span> ((p <span class="sc">-</span> o[j])<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> v)</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>      nll <span class="ot">&lt;-</span> nll <span class="sc">-</span> <span class="fu">log</span>(<span class="fu">exp</span>(<span class="sc">-</span>effn[i] <span class="sc">*</span> ell) <span class="sc">+</span> <span class="fl">0.01</span>)</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>      nll <span class="ot">&lt;-</span> nll <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">log</span>(v <span class="sc">/</span> effn[i])</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>  nll</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</section>
+<section id="recruitment-likelihood" class="level4">
+<h4 class="anchored" data-anchor-id="recruitment-likelihood">Recruitment Likelihood</h4>
+<p>Recruitment deviations are fit through the ADMB <code>res_recruit</code> vector. For the BBRKC no-stock-recruitment option, the first residual is</p>
+<p><span class="math display">\[
+\epsilon_{i_0}
+=
+\log R_{\mathrm{male},i_0}
+- \log R_0
++ \frac{1}{2}\sigma_R^2.
+\]</span></p>
+<p>For later years,</p>
+<p><span class="math display">\[
+\epsilon_i
+=
+\log R_{\mathrm{male},i}
+- (1-\rho_R)\log \bar{R}
+- \rho_R \log R_{\mathrm{male},i-1}
++ \frac{1}{2}\sigma_R^2.
+\]</span></p>
+<p>The likelihood contribution is</p>
+<p><span class="math display">\[
+\mathcal{L}_{\mathrm{recruit}}
+=
+\sum_i
+\left[
+\frac{1}{2}\left(\frac{\epsilon_i}{\sigma_R}\right)^2
++ \log(\sigma_R\sqrt{2\pi})
+\right].
+\]</span></p>
+<details>
+<summary>
+R implementation: recruitment residual and likelihood
+</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>calc_bbrkc_recruitment_residual <span class="ot">&lt;-</span> <span class="cf">function</span>(par, data, model) {</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  sigR <span class="ot">&lt;-</span> <span class="fu">exp</span>(par<span class="sc">$</span>theta[<span class="dv">10</span>])</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  sig2R <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">*</span> sigR <span class="sc">*</span> sigR</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  male_recruits <span class="ot">&lt;-</span> model<span class="sc">$</span>recruits[<span class="dv">1</span>, ]</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  out[[<span class="dv">1</span>]] <span class="ot">&lt;-</span> <span class="fu">log</span>(male_recruits[<span class="dv">1</span>]) <span class="sc">-</span> model<span class="sc">$</span>logR0 <span class="sc">+</span> sig2R</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (iy <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>n_years) {</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    out[[iy]] <span class="ot">&lt;-</span> <span class="fu">log</span>(male_recruits[iy]) <span class="sc">-</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>      (<span class="dv">1</span> <span class="sc">-</span> model<span class="sc">$</span>rho) <span class="sc">*</span> model<span class="sc">$</span>logRbar <span class="sc">-</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>      model<span class="sc">$</span>rho <span class="sc">*</span> <span class="fu">log</span>(male_recruits[iy <span class="sc">-</span> <span class="dv">1</span>L]) <span class="sc">+</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>      sig2R</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">do.call</span>(c, out)</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>recruitment_likelihood <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  sigR <span class="ot">&lt;-</span> <span class="fu">exp</span>(par<span class="sc">$</span>theta[<span class="dv">10</span>])</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  out[[<span class="dv">1</span>]] <span class="ot">&lt;-</span> <span class="fu">admb_dnorm_nll</span>(model<span class="sc">$</span>res_recruit, sigR)</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  out[[<span class="dv">3</span>]] <span class="ot">&lt;-</span> <span class="fu">admb_dnorm_nll</span>(par<span class="sc">$</span>logit_rec_prop_est, <span class="dv">2</span>)</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">do.call</span>(c, out)</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</section>
+<section id="growth-likelihood" class="level4">
+<h4 class="anchored" data-anchor-id="growth-likelihood">Growth Likelihood</h4>
+<p>Growth-increment observations, when active, are fit by the GMACS growth model using the predicted increment mean and variance:</p>
+<p><span class="math display">\[
+\Delta L_n \sim
+\operatorname{Normal}
+\left(
+\mu^{\Delta L}_{h(n)}(L_n),
+\sigma^{\Delta L}_{h(n)}(L_n)
+\right).
+\]</span></p>
+<p>The corresponding negative log-likelihood is</p>
+<p><span class="math display">\[
+\mathcal{L}_{\mathrm{growth}}
+=
+\sum_n
+\left[
+\frac{1}{2}
+\left(
+\frac{\Delta L^{\mathrm{obs}}_n
+- \mu^{\Delta L}_{h(n)}(L_n)}
+{\sigma^{\Delta L}_{h(n)}(L_n)}
+\right)^2
++ \log\left(\sigma^{\Delta L}_{h(n)}(L_n)\sqrt{2\pi}\right)
+\right].
+\]</span></p>
+<p>Growth likelihood activation should occur after the deterministic growth transition matrix remains matched to ADMB under the same input data.</p>
+</section>
+</section>
+<section id="e.-penalties-and-priors" class="level3">
+<h3 class="anchored" data-anchor-id="e.-penalties-and-priors">E. Penalties and Priors</h3>
+<p>The GMACS objective includes penalties and priors in addition to observation likelihoods. The RTMB port now computes the raw <code>nlogPenalty</code> vector and adds the weighted penalty contribution to the objective:</p>
+<p><span class="math display">\[
+\mathcal{P}_{\mathrm{weighted}}
+=
+\sum_{b=1}^{13} w_b \mathcal{P}_b.
+\]</span></p>
+<p>The nonzero BBRKC raw penalty components are:</p>
+<p><span class="math display">\[
+\mathcal{P}_1
+=
+\sum_k
+\omega^{F}_{k,1}\overline{d}^{\,2}_{F,k}
++ \omega^{F}_{k,2}\overline{d}^{\,2}_{F\mathrm{off},k},
+\]</span></p>
+<p><span class="math display">\[
+\mathcal{P}_3
+=
+\sum_b
+\left[
+\frac{1}{2}\left(\frac{\delta^M_b}{\sigma_M}\right)^2
++ \log(\sigma_M\sqrt{2\pi})
+\right],
+\]</span></p>
+<p><span class="math display">\[
+\mathcal{P}_6
+=
+\sum_i
+\left[
+\frac{1}{2}\left(d_i-d_{i-1}\right)^2
++ \log(\sqrt{2\pi})
+\right],
+\]</span></p>
+<p><span class="math display">\[
+\mathcal{P}_7
+=
+\left[
+\log\left(\sum_i R_{\mathrm{female},i}\right)
+- \log\left(\sum_i R_{\mathrm{male},i}\right)
+\right]^2,
+\]</span></p>
+<p>and the initial abundance smoothness penalty is</p>
+<p><span class="math display">\[
+\mathcal{P}_{10}
+=
+\sum_g\sum_{\ell=2}^{L}
+\left[
+\frac{1}{2}
+\left(\log \widetilde{N}_{g,\ell}
+- \log \widetilde{N}_{g,\ell-1}\right)^2
++ \log(\sqrt{2\pi})
+\right].
+\]</span></p>
+<p>The raw RTMB penalty vector matches the ADMB <code>nlogPenalty</code> block to printed precision. The weighted contribution is smaller than the raw sum because the BBRKC control file sets several penalty-emphasis weights to zero.</p>
+<details>
+<summary>
+R implementation: penalty blocks
+</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>calc_bbrkc_penalties <span class="ot">&lt;-</span> <span class="cf">function</span>(par, data, model, zero_ad) {</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">"list"</span>, <span class="dv">13</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(out)) out[[i]] <span class="ot">&lt;-</span> zero_ad</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  log_fdev <span class="ot">&lt;-</span> <span class="fu">split_parameter_by_fleet</span>(par<span class="sc">$</span>log_fdev, data<span class="sc">$</span>fdev_indices)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  log_fdov <span class="ot">&lt;-</span> <span class="fu">split_parameter_by_fleet</span>(par<span class="sc">$</span>log_fdov, data<span class="sc">$</span>fdov_indices)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (fleet <span class="cf">in</span> <span class="fu">seq_along</span>(log_fdev)) {</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    out[[<span class="dv">1</span>]] <span class="ot">&lt;-</span> out[[<span class="dv">1</span>]] <span class="sc">+</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>      data<span class="sc">$</span>likelihood_emphasis<span class="sc">$</span>fdev_penalty[fleet, <span class="dv">1</span>] <span class="sc">*</span> <span class="fu">mean</span>(log_fdev[[fleet]])<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    out[[<span class="dv">1</span>]] <span class="ot">&lt;-</span> out[[<span class="dv">1</span>]] <span class="sc">+</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>      data<span class="sc">$</span>likelihood_emphasis<span class="sc">$</span>fdev_penalty[fleet, <span class="dv">2</span>] <span class="sc">*</span> <span class="fu">mean</span>(log_fdov[[fleet]])<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  out[[<span class="dv">3</span>]] <span class="ot">&lt;-</span> <span class="fu">admb_dnorm_nll</span>(par<span class="sc">$</span>m_dev_est, data<span class="sc">$</span>m_controls<span class="sc">$</span>mdev_sd)</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  out[[<span class="dv">6</span>]] <span class="ot">&lt;-</span> <span class="fu">first_difference_nll</span>(model<span class="sc">$</span>rec_dev, <span class="dv">1</span>)</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  out[[<span class="dv">7</span>]] <span class="ot">&lt;-</span> (<span class="fu">log</span>(<span class="fu">sum</span>(model<span class="sc">$</span>recruits[<span class="dv">2</span>, ])) <span class="sc">-</span> <span class="fu">log</span>(<span class="fu">sum</span>(model<span class="sc">$</span>recruits[<span class="dv">1</span>, ])))<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (group <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(model<span class="sc">$</span>logN0))) {</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    out[[<span class="dv">10</span>]] <span class="ot">&lt;-</span> out[[<span class="dv">10</span>]] <span class="sc">+</span> <span class="fu">first_difference_nll</span>(model<span class="sc">$</span>logN0[group, ], <span class="dv">1</span>)</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">do.call</span>(c, out)</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>weighted_nlog_penalty <span class="ot">&lt;-</span> nlog_penalty <span class="sc">*</span> data<span class="sc">$</span>likelihood_emphasis<span class="sc">$</span>penalty</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<p>Parameter priors enter as negative log densities:</p>
+<p><span class="math display">\[
+\mathcal{D}_{\mathrm{prior}}
+=
+-\sum_b \log \pi_b(\psi_b),
+\]</span></p>
+<p>where <span class="math inline">\(\psi_b\)</span> is an active parameter block and <span class="math inline">\(\pi_b\)</span> is the corresponding prior density specified by GMACS. The RTMB port preserves the ADMB <code>priorDensity</code> vector layout, including zero entries for active parameters that intentionally have no prior.</p>
+<p>The implemented prior forms are:</p>
+<p><span class="math display">\[
+\mathcal{D}_{\mathrm{uniform}}(x; a,b) = \log(b-a),
+\]</span></p>
+<p><span class="math display">\[
+\mathcal{D}_{\mathrm{normal}}(x; \mu,\sigma)
+=
+\frac{1}{2}\log(2\pi) + \log(\sigma)
++ \frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2,
+\]</span></p>
+<p><span class="math display">\[
+\mathcal{D}_{\mathrm{lognormal}}(x; m,\sigma)
+=
+\frac{1}{2}\log(2\pi) + \log(\sigma) + \log(x)
++ \frac{1}{2}\left(\frac{\log(x)-\log(m)}{\sigma}\right)^2,
+\]</span></p>
+<p>with beta and gamma negative log densities available for configurations that activate those prior types. Selectivity priors are applied to <span class="math inline">\(\exp(\log s)\)</span>, matching GMACS. Additional-CV priors are applied to <span class="math inline">\(\exp(\log \sigma_{\mathrm{add}})\)</span>, also matching GMACS.</p>
+<details>
+<summary>
+R implementation: prior-density blocks
+</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>admb_prior_nll <span class="ot">&lt;-</span> <span class="cf">function</span>(type, x, p1, p2) {</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">switch</span>(</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.character</span>(<span class="fu">as.integer</span>(type)),</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"0"</span> <span class="ot">=</span> <span class="fu">log</span>(p2 <span class="sc">-</span> p1),</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"1"</span> <span class="ot">=</span> <span class="fu">admb_dnorm_nll</span>(x, p2, p1),</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2"</span> <span class="ot">=</span> <span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">log</span>(<span class="dv">2</span> <span class="sc">*</span> pi) <span class="sc">+</span> <span class="fu">log</span>(p2) <span class="sc">+</span> <span class="fu">log</span>(x) <span class="sc">+</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>      <span class="fl">0.5</span> <span class="sc">*</span> ((<span class="fu">log</span>(x) <span class="sc">-</span> <span class="fu">log</span>(p1)) <span class="sc">/</span> p2)<span class="sc">^</span><span class="dv">2</span>,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"3"</span> <span class="ot">=</span> <span class="sc">-</span>(<span class="fu">lgamma</span>(p1 <span class="sc">+</span> p2) <span class="sc">-</span> <span class="fu">lgamma</span>(p1) <span class="sc">-</span> <span class="fu">lgamma</span>(p2) <span class="sc">+</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>      (p1 <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="fu">log</span>(x) <span class="sc">+</span> (p2 <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">-</span> x)),</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"4"</span> <span class="ot">=</span> <span class="sc">-</span>(p1 <span class="sc">*</span> <span class="fu">log</span>(p2) <span class="sc">-</span> <span class="fu">lgamma</span>(p1) <span class="sc">+</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>      (p1 <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="fu">log</span>(x) <span class="sc">-</span> p2 <span class="sc">*</span> x)</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>calc_bbrkc_prior_density <span class="ot">&lt;-</span> <span class="cf">function</span>(par, data, zero_ad) {</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">length</span>(data<span class="sc">$</span>admb_reference<span class="sc">$</span>prior_density))</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>  iprior <span class="ot">&lt;-</span> <span class="dv">1</span>L</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Fill active theta, growth, selectivity, M, q, add-CV, and mature-M priors.</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>  <span class="do">## Advance iprior over active parameters that have no prior, preserving ADMB</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>  <span class="do">## priorDensity vector layout.</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>  ...</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>  out <span class="sc">+</span> zero_ad</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<p>The parser reads the ADMB <code>nloglike</code>, <code>nlogPenalty</code>, and <code>priorDensity</code> summary blocks from <code>Gmacsall.out</code>; all currently active BBRKC objective components are checked against those component-level regression targets.</p>
+<p><code>audit_bbrkc_admb_components()</code> builds the current regression table from an RTMB report object and the parsed ADMB reference blocks. It aggregates the likelihood rows to match the BBRKC objective components and compares the raw penalty and prior vectors element by element.</p>
+</section>
+</section>
+<section id="appendix-results-figures" class="level2">
+<h2 class="anchored" data-anchor-id="appendix-results-figures">Appendix: Results Figures</h2>
+<p>The figures below are generated directly from the current RTMB population state initialized at the BBRKC fitted <code>.pin</code> values. They are not a refit; they are quick visual diagnostics that the port produces interpretable annual trajectories for biomass, recruitment, and natural mortality.</p>
+<p>The executable results figures require <code>build/BBRKC/gmacs.dat</code>, <code>gmacs.pin</code>, <code>Gmacsall.out</code>, and <code>gmacs.rep</code>. Those local model inputs are not committed to the repository, so the GitHub Pages render shows the figure code without executing it.</p>
+<section id="biomass" class="level3">
+<h3 class="anchored" data-anchor-id="biomass">Biomass</h3>
+<p>Annual biomass is summarized from the first season of each model year as numbers-at-size multiplied by mean weight-at-size, summed over sex, maturity, shell condition, and size class:</p>
+<p><span class="math display">\[
+B_y =
+\sum_g\sum_\ell
+N_{g,y,1,\ell}\,
+w_{\mathrm{sex}(g),\mathrm{mat}(g),y,\ell}.
+\]</span></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>biomass <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n_years)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (iy <span class="cf">in</span> <span class="fu">seq_len</span>(n_years)) {</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (ig <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(groups))) {</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    sex <span class="ot">&lt;-</span> groups<span class="sc">$</span>sex[ig]</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    maturity <span class="ot">&lt;-</span> groups<span class="sc">$</span>maturity[ig]</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    biomass[iy] <span class="ot">&lt;-</span> biomass[iy] <span class="sc">+</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sum</span>(rtmb_model<span class="sc">$</span>N[ig, iy, <span class="dv">1</span>, ] <span class="sc">*</span> rtmb_data<span class="sc">$</span>mean_wt[sex, maturity, iy, ])</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  years, biomass, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"#1b6da8"</span>,</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Year"</span>, <span class="at">ylab =</span> <span class="st">"Biomass (model units)"</span>, <span class="at">bty =</span> <span class="st">"l"</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a><span class="fu">grid</span>(<span class="at">col =</span> <span class="st">"grey85"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="recruitment-1" class="level3">
+<h3 class="anchored" data-anchor-id="recruitment-1">Recruitment</h3>
+<p>Recruitment is summarized by sex and in total from the ported GMACS recruitment block:</p>
+<p><span class="math display">\[
+R_y = \sum_s R_{s,y}.
+\]</span></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>recruits <span class="ot">&lt;-</span> rtmb_model<span class="sc">$</span>recruits[, <span class="fu">seq_len</span>(n_years), drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>recruitment_total <span class="ot">&lt;-</span> <span class="fu">colSums</span>(recruits)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">matplot</span>(</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  years, <span class="fu">t</span>(recruits), <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">lwd =</span> <span class="fl">1.5</span>,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"#386cb0"</span>, <span class="st">"#fdb462"</span>),</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Year"</span>, <span class="at">ylab =</span> <span class="st">"Recruitment (numbers)"</span>, <span class="at">bty =</span> <span class="st">"l"</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(years, recruitment_total, <span class="at">lwd =</span> <span class="fl">2.5</span>, <span class="at">col =</span> <span class="st">"#222222"</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="fu">grid</span>(<span class="at">col =</span> <span class="st">"grey85"</span>)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"topright"</span>, <span class="at">bty =</span> <span class="st">"n"</span>, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">lwd =</span> <span class="fu">c</span>(<span class="fl">1.5</span>, <span class="fl">1.5</span>, <span class="fl">2.5</span>),</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"#386cb0"</span>, <span class="st">"#fdb462"</span>, <span class="st">"#222222"</span>),</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Female"</span>, <span class="st">"Male"</span>, <span class="st">"Total"</span>)</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="natural-mortality-1" class="level3">
+<h3 class="anchored" data-anchor-id="natural-mortality-1">Natural Mortality</h3>
+<p>Natural mortality is plotted as an annual size-class mean by sex for the available mortality maturity stratum:</p>
+<p><span class="math display">\[
+\overline{M}_{s,y}
+=
+\frac{1}{L}
+\sum_\ell M_{s,m^*,y,\ell}.
+\]</span></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>n_sex <span class="ot">&lt;-</span> rtmb_data<span class="sc">$</span>dimensions[[<span class="st">"nsex"</span>]]</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>maturity_index <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="dv">2</span>L, <span class="fu">dim</span>(rtmb_model<span class="sc">$</span>M)[<span class="dv">2</span>])</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>mean_m <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA_real_</span>, <span class="at">nrow =</span> n_years, <span class="at">ncol =</span> n_sex)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (sex <span class="cf">in</span> <span class="fu">seq_len</span>(n_sex)) {</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  mean_m[, sex] <span class="ot">&lt;-</span> <span class="fu">rowMeans</span>(rtmb_model<span class="sc">$</span>M[sex, maturity_index, <span class="fu">seq_len</span>(n_years), ])</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="fu">matplot</span>(</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  years, mean_m, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">lwd =</span> <span class="dv">2</span>,</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"#386cb0"</span>, <span class="st">"#fdb462"</span>),</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Year"</span>, <span class="at">ylab =</span> <span class="st">"Mean M"</span>, <span class="at">bty =</span> <span class="st">"l"</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="fu">grid</span>(<span class="at">col =</span> <span class="st">"grey85"</span>)</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">"topright"</span>, <span class="at">bty =</span> <span class="st">"n"</span>, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">lwd =</span> <span class="dv">2</span>,</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"#386cb0"</span>, <span class="st">"#fdb462"</span>),</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Female"</span>, <span class="st">"Male"</span>)</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

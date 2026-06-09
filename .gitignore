@@ -10,9 +10,12 @@ build/
 *.tmp
 
 # Quarto render output
-bbrkc_rtmb_port_steps.html
-bbrkc_rtmb_port_steps_files/
+/bbrkc_rtmb_port_steps.html
+/bbrkc_rtmb_port_steps_files/
 
 # Archive/system byproducts
 __MACOSX/
 *.zip
+
+/.quarto/
+**/*.quarto_ipynb

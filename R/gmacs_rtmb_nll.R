@@ -42,6 +42,13 @@ plogis_gmacs <- function(x, location, scale) {
   1 / (1 + exp(-(x - location) / scale))
 }
 
+ad_pgamma <- function(q, shape, scale = 1) {
+  if (requireNamespace("RTMB", quietly = TRUE)) {
+    return(RTMB::pgamma(q, shape = shape, scale = scale))
+  }
+  stats::pgamma(q, shape = shape, scale = scale)
+}
+
 calc_bbrkc_capture_selectivity <- function(log_slx_pars, data) {
   years <- data$years
   n_years <- length(years)
@@ -387,10 +394,6 @@ calc_bbrkc_molting_probability <- function(growth, data) {
 }
 
 calc_bbrkc_growth_transition <- function(growth, data) {
-  if (!is.null(data$growth_transition_fixed)) {
-    return(data$growth_transition_fixed)
-  }
-
   controls <- data$growth_controls
   nsex <- data$dimensions[["nsex"]]
   nclass <- data$dimensions[["nclass"]]
@@ -411,7 +414,7 @@ calc_bbrkc_growth_transition <- function(growth, data) {
         for (to in from:(n_size_sex - 1L)) {
           upper_inc <- (data$size_breaks[to + 1L] - data$mid_points[from]) /
             growth$gscale[sex, block]
-          cum_inc <- pgamma(as.numeric(upper_inc), shape = as.numeric(shape), scale = 1)
+          cum_inc <- ad_pgamma(upper_inc, shape = shape, scale = 1)
           gt[from, to] <- cum_inc - accum
           accum <- cum_inc
         }
@@ -426,18 +429,14 @@ calc_bbrkc_growth_transition <- function(growth, data) {
 }
 
 calc_bbrkc_recruitment_size_distribution <- function(model, data) {
-  if (!is.null(data$rec_sdd_fixed)) {
-    return(data$rec_sdd_fixed)
-  }
-
   controls <- data$growth_controls
   nsex <- data$dimensions[["nsex"]]
   nclass <- data$dimensions[["nclass"]]
   out <- matrix(0, nrow = nsex, ncol = nclass)
 
   for (sex in seq_len(nsex)) {
-    shape <- as.numeric(model$ra[sex] / model$rbeta[sex])
-    cdf <- pgamma(data$size_breaks / as.numeric(model$rbeta[sex]), shape = shape, scale = 1)
+    shape <- model$ra[sex] / model$rbeta[sex]
+    cdf <- ad_pgamma(data$size_breaks / model$rbeta[sex], shape = shape, scale = 1)
     probs <- diff(cdf)
     if (controls$max_recruit_size[sex] < nclass) {
       probs[(controls$max_recruit_size[sex] + 1L):nclass] <- 0
@@ -999,11 +998,7 @@ initialize_bbrkc_model_parameters <- function(par, data, predictions = TRUE) {
   model <- c(model, fishing)
   total_mortality <- calc_bbrkc_total_mortality(data, model)
   model <- c(model, total_mortality)
-  growth_par <- par
-  if (!is.null(data$growth_parameters_initial)) {
-    growth_par$Grwth <- data$growth_parameters_initial
-  }
-  growth <- unpack_bbrkc_growth_parameters(growth_par, data)
+  growth <- unpack_bbrkc_growth_parameters(par, data)
   growth$molt_probability <- calc_bbrkc_molting_probability(growth, data)
   growth$growth_transition <- calc_bbrkc_growth_transition(growth, data)
   model <- c(model, growth)
@@ -1394,22 +1389,8 @@ make_gmacs_rtmb_data <- function(inputs) {
     size_comp = dat$size_comp,
     growth = dat$growth,
     environment = dat$environment,
-    growth_parameters_initial = {
-      x <- inputs$parameters$Grwth
-      attributes(x) <- NULL
-      x
-    },
     admb_reference = inputs$admb_reference
   )
-  initial_parameters <- make_gmacs_parameter_list(inputs)
-  initial_growth <- unpack_bbrkc_growth_parameters(initial_parameters, data)
-  data$growth_transition_fixed <- calc_bbrkc_growth_transition(initial_growth, data)
-  theta <- initial_parameters$theta
-  initial_model <- list(
-    ra = c(theta[6], theta[6] * exp(theta[8])),
-    rbeta = c(theta[7], theta[7] * exp(theta[9]))
-  )
-  data$rec_sdd_fixed <- calc_bbrkc_recruitment_size_distribution(initial_model, data)
   data$observed_size_compositions <- build_bbrkc_observed_size_compositions(data)
   data
 }
@@ -1977,6 +1958,73 @@ validate_gmacs_inputs <- function(inputs) {
     )
   }
   invisible(checks)
+}
+
+make_bbrkc_admb_likelihood_components <- function(inputs) {
+  c(
+    catch = sum(inputs$admb_reference$nloglike[1:7]),
+    index = sum(inputs$admb_reference$nloglike[8:9]),
+    length = sum(inputs$admb_reference$nloglike[10:17]),
+    recruitment = sum(inputs$admb_reference$nloglike[18:20]),
+    growth = sum(inputs$admb_reference$nloglike[21:22])
+  )
+}
+
+make_difference_summary <- function(component, rtmb, admb, tolerance) {
+  diff <- as.numeric(rtmb) - as.numeric(admb)
+  data.frame(
+    component = component,
+    rtmb_sum = sum(as.numeric(rtmb)),
+    admb_sum = sum(as.numeric(admb)),
+    max_abs_diff = max(abs(diff)),
+    tolerance = tolerance,
+    pass = max(abs(diff)) <= tolerance,
+    stringsAsFactors = FALSE
+  )
+}
+
+audit_bbrkc_admb_components <- function(report, inputs, tolerance = 1e-5) {
+  admb_nloglike <- make_bbrkc_admb_likelihood_components(inputs)
+  nloglike <- do.call(rbind, lapply(names(report$nloglike), function(component) {
+    make_difference_summary(
+      paste0("nloglike.", component),
+      report$nloglike[[component]],
+      admb_nloglike[[component]],
+      tolerance
+    )
+  }))
+
+  nlog_penalty <- make_difference_summary(
+    "nlogPenalty",
+    report$nlog_penalty,
+    inputs$admb_reference$nlog_penalty,
+    tolerance
+  )
+  prior_density <- make_difference_summary(
+    "priorDensity",
+    report$prior_density,
+    inputs$admb_reference$prior_density,
+    tolerance
+  )
+
+  out <- rbind(nloglike, nlog_penalty, prior_density)
+  rownames(out) <- NULL
+  out
+}
+
+print_bbrkc_admb_audit <- function(audit) {
+  for (i in seq_len(nrow(audit))) {
+    cat(
+      "    ", audit$component[i],
+      " RTMB=", signif(audit$rtmb_sum[i], 8),
+      " ADMB=", signif(audit$admb_sum[i], 8),
+      " max_abs_diff=", signif(audit$max_abs_diff[i], 4),
+      " pass=", audit$pass[i],
+      "\n",
+      sep = ""
+    )
+  }
+  invisible(audit)
 }
 
 gmacs_rtmb_nll_factory <- function(data) {
