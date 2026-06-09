@@ -9,6 +9,60 @@ tanner_file_set <- function(root = "examples/tanners") {
   lapply(files, function(file) file.path(root, file))
 }
 
+tanner_admb_report_candidates <- function(root = "examples/tanners") {
+  list(
+    all = file.path(root, c(
+      "Gmacsall.out",
+      "gmacsall.out",
+      "GmacsAll.out",
+      "TannerCrab_Gmacsall.out",
+      "gmacs_26_22_03d5_aEffExp1.Gmacsall.out",
+      "gmacs_26_22_03d5_aEffExp1.all.out"
+    )),
+    report = file.path(root, c(
+      "gmacs.rep",
+      "Gmacs.rep",
+      "TannerCrab.rep",
+      "TannerCrab_26_22_03d5_a.rep",
+      "gmacs_26_22_03d5_aEffExp1.rep"
+    ))
+  )
+}
+
+tanner_admb_report_files <- function(root = "examples/tanners") {
+  candidates <- tanner_admb_report_candidates(root)
+  files <- lapply(candidates, function(x) {
+    hit <- x[file.exists(x)]
+    if (length(hit)) hit[1] else NA_character_
+  })
+  names(files) <- names(candidates)
+  files
+}
+
+read_tanner_admb_reference <- function(root = "examples/tanners") {
+  files <- tanner_admb_report_files(root)
+  out <- list(files = files)
+
+  if (!is.na(files$all)) {
+    out$likelihood <- read_admb_likelihood_reference(files$all)
+    out$catch_fit <- read_admb_catch_fit_summary(files$all)
+    out$index_fit <- read_admb_index_fit_summary(files$all)
+    out$size_fit <- read_admb_size_fit_summary(files$all)
+    out$overall_summary <- read_admb_overall_summary(files$all)
+  }
+
+  if (!is.na(files$report)) {
+    out$selectivity <- list(
+      capture = read_admb_selectivity_block(files$report, "slx_capture"),
+      retained = read_admb_selectivity_block(files$report, "slx_retaind"),
+      discard = read_admb_selectivity_block(files$report, "slx_discard")
+    )
+  }
+
+  out$available <- !is.na(files$all) && !is.na(files$report)
+  out
+}
+
 first_numeric_on_line <- function(lines, pattern) {
   hit <- grep(pattern, lines)
   if (!length(hit)) {
@@ -249,7 +303,7 @@ read_tanner_inputs <- function(root = "examples/tanners") {
     main = read_tanner_main(files$main),
     data = read_tanner_data_summary(files$data),
     parameters = read_tanner_parameter_table(files$par),
-    admb_reference_available = all(file.exists(file.path(root, c("Gmacsall.out", "gmacs.rep"))))
+    admb_reference = read_tanner_admb_reference(root)
   )
 }
 
@@ -267,4 +321,8 @@ validate_tanner_inputs <- function(inputs) {
     stop("Tanner validation failed: ", paste(names(checks)[!checks], collapse = ", "), call. = FALSE)
   }
   invisible(checks)
+}
+
+tanner_admb_reference_available <- function(inputs) {
+  isTRUE(inputs$admb_reference$available)
 }

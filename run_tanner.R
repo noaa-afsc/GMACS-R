@@ -32,6 +32,18 @@ cat("  growth observations:", inputs$data$growth$n, "\n")
 cat("  maturity observations:", inputs$data$maturity$n, "\n")
 cat("  parameter rows:", nrow(inputs$parameters), "\n")
 cat("  active estimated parameters:", sum(inputs$parameters$active), "\n")
-if (!inputs$admb_reference_available) {
+if (tanner_admb_reference_available(inputs)) {
+  cat("  ADMB likelihood entries:", length(inputs$admb_reference$likelihood$nloglike), "\n")
+  cat("  ADMB penalty entries:", length(inputs$admb_reference$likelihood$nlog_penalty), "\n")
+  cat("  ADMB prior entries:", length(inputs$admb_reference$likelihood$prior_density), "\n")
+  cat("  ADMB catch-fit rows:", nrow(inputs$admb_reference$catch_fit), "\n")
+  cat("  ADMB index-fit rows:", nrow(inputs$admb_reference$index_fit), "\n")
+  cat("  ADMB size-fit rows:", nrow(inputs$admb_reference$size_fit), "\n")
+} else {
+  candidates <- tanner_admb_report_candidates(input_root)
   cat("  ADMB parity outputs: not available in this folder; likelihood audit not run.\n")
+  cat("  expected all-output candidates:\n")
+  cat("    ", paste(basename(candidates$all), collapse = "\n    "), "\n", sep = "")
+  cat("  expected report candidates:\n")
+  cat("    ", paste(basename(candidates$report), collapse = "\n    "), "\n", sep = "")
 }

@@ -34,6 +34,12 @@ The Tanner reader uses:
 | `examples/tanners/TannerCrab_26_22_03d5_a.prj` | Tanner projection file. |
 | `examples/tanners/gmacs_26_22_03d5_aEffExp1.par` | Fitted parameter table. |
 
+Optional ADMB parity targets are discovered if they are added to the same
+folder. Canonical names are `Gmacsall.out` and `gmacs.rep`; the reader also
+checks common Tanner-specific variants such as
+`gmacs_26_22_03d5_aEffExp1.Gmacsall.out` and
+`gmacs_26_22_03d5_aEffExp1.rep`.
+
 ## Current Reader
 
 The Tanner files use a different GMACS text layout from the BBRKC example.
@@ -46,6 +52,15 @@ source("R/read_gmacs_tanner.R")
 
 tanner <- read_tanner_inputs("examples/tanners")
 validate_tanner_inputs(tanner)
+```
+
+```{r}
+data.frame(
+  report = names(tanner$admb_reference$files),
+  path = unlist(tanner$admb_reference$files),
+  available = file.exists(unlist(tanner$admb_reference$files)),
+  row.names = NULL
+)
 ```
 
 ## Input Summary
@@ -109,6 +124,14 @@ The Tanner reader validates:
 The next implementation step is to add Tanner ADMB report outputs
 (`Gmacsall.out` and `gmacs.rep`, or their Tanner-equivalent names) so the same
 style of objective and deterministic parity checks used for BBRKC can be built.
+The reader now has the hooks to parse those files when present:
+
+- `read_admb_likelihood_reference()` for `nloglike`, `nlogPenalty`, and
+  `priorDensity`;
+- `read_admb_catch_fit_summary()`, `read_admb_index_fit_summary()`, and
+  `read_admb_size_fit_summary()` for observed/predicted fit summaries;
+- `read_admb_selectivity_block()` for `slx_capture`, `slx_retaind`, and
+  `slx_discard` from the report file.
 
 ## Index Diagnostics
 

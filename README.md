@@ -16,7 +16,8 @@ The detailed porting notes, parity checks, and next implementation steps live in
 - `run_bbrkc.R`: parser, RTMB tape, and component-comparison smoke run.
 - `optimize_bbrkc.R`: short `nlminb()` optimization smoke test.
 - `run_tanner.R`: Tanner input parser and fitted-parameter summary for the
-  files in `examples/tanners`.
+  files in `examples/tanners`; it also discovers Tanner ADMB report outputs
+  when `Gmacsall.out` and `gmacs.rep` or recognized equivalent names are added.
 - `gmacs.tpl`: GMACS ADMB template reference.
 - `examples/tanners/`: Tanner crab GMACS input files retained as local
   reference material.
