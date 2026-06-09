@@ -76,7 +76,7 @@ source("run_bbrkc.R")
 The Quarto notes are rendered for GitHub Pages under `docs/`:
 
 ```sh
-quarto render bbrkc_rtmb_port_steps.qmd --output-dir docs --output index.html
+quarto render bbrkc_rtmb_port_steps.qmd --output-dir docs --output bbrkc.html --no-clean
 quarto render tanner_rtmb_port_steps.qmd --output-dir docs --output tanner.html --no-clean
 ```
 
