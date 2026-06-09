@@ -1655,3 +1655,74 @@ legend(
   legend = c("Female", "Male")
 )
 ```
+
+### Index Fit
+
+Observed survey indices are plotted against the current RTMB predictions for
+each BBRKC index series.
+
+```{r}
+#| label: fig-bbrkc-index-fit
+#| fig-cap: "Observed and predicted BBRKC survey indices by series."
+#| code-fold: true
+#| eval: !expr has_bbrkc_inputs
+index_fit <- index_fit_to_data_frame(rtmb_model, rtmb_data)
+survey_obs <- rtmb_data$survey$data
+index_fit$observed <- survey_obs$obs
+series_ids <- sort(unique(index_fit$series))
+old_par <- par(mfrow = c(ceiling(length(series_ids) / 2), 2), mar = c(3, 3, 2, 1), oma = c(1, 1, 0, 0))
+for (series in series_ids) {
+  x <- index_fit[index_fit$series == series, ]
+  ylim <- range(c(x$observed, x$predicted), finite = TRUE)
+  plot(x$year, x$observed, pch = 16, col = "#1b6da8", ylim = ylim,
+       xlab = "", ylab = "", main = paste("Series", series), bty = "l")
+  lines(x$year, x$predicted, lwd = 2, col = "#c43c39")
+  grid(col = "grey88")
+}
+par(old_par)
+legend("bottom", inset = -0.02, xpd = NA, horiz = TRUE, bty = "n",
+       pch = c(16, NA), lty = c(NA, 1), lwd = c(NA, 2),
+       col = c("#1b6da8", "#c43c39"), legend = c("Observed", "Predicted"))
+```
+
+### Size-Composition Fit
+
+The panels below compare observed and predicted size compositions for recent
+rows from the first four modified composition series.
+
+```{r}
+#| label: fig-bbrkc-size-composition-fit
+#| fig-cap: "Observed and predicted BBRKC size compositions for selected recent rows."
+#| code-fold: true
+#| eval: !expr has_bbrkc_inputs
+size_pred <- size_composition_to_data_frame(rtmb_model, rtmb_data)
+obs_comp <- rtmb_data$observed_size_compositions
+plot_records <- list()
+for (series in seq_len(min(4, length(obs_comp$observed)))) {
+  obs <- obs_comp$observed[[series]]
+  row <- nrow(obs)
+  pred <- size_pred[size_pred$modified_series == series, ]
+  pred_years <- sort(unique(pred$year))
+  year <- pred_years[row]
+  pred_row <- pred[pred$year == year & pred$modified_series == series, ]
+  plot_records[[series]] <- list(
+    series = series,
+    year = year,
+    observed = as.numeric(obs[row, ]) / sum(as.numeric(obs[row, ])),
+    predicted = pred_row$value / sum(pred_row$value)
+  )
+}
+old_par <- par(mfrow = c(2, 2), mar = c(3, 3, 2, 1), oma = c(1, 1, 0, 0))
+for (rec in plot_records) {
+  ylim <- range(c(rec$observed, rec$predicted), finite = TRUE)
+  plot(seq_along(rec$observed), rec$observed, type = "h", lwd = 3,
+       col = "#1b6da8", ylim = ylim, xlab = "", ylab = "",
+       main = paste("Series", rec$series, rec$year), bty = "l")
+  lines(seq_along(rec$predicted), rec$predicted, lwd = 2, col = "#c43c39")
+  grid(col = "grey88")
+}
+par(old_par)
+legend("bottom", inset = -0.02, xpd = NA, horiz = TRUE, bty = "n",
+       lty = c(1, 1), lwd = c(3, 2), col = c("#1b6da8", "#c43c39"),
+       legend = c("Observed", "Predicted"))
+```

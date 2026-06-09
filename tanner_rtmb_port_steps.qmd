@@ -1,0 +1,161 @@
+---
+title: "Tanner Crab GMACS Input Notes"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Purpose
+
+This document is the Tanner crab parallel to `bbrkc_rtmb_port_steps.qmd`.
+The current Tanner work is at the input-orientation stage: the repository now
+has a Tanner-specific reader for the available GMACS files in `examples/tanners`.
+
+Unlike `examples/BBRKC`, the Tanner folder currently does not include
+`Gmacsall.out` or `gmacs.rep`, so ADMB likelihood, penalty, prior, and
+deterministic report parity cannot yet be audited.
+
+## Files
+
+The Tanner reader uses:
+
+| File | Role |
+|---|---|
+| `examples/tanners/gmacs_26_22_03d5_aEffExp1.Run1.dat` | GMACS main run file. |
+| `examples/tanners/TannerCrab_Data202509.EffExp1.dat` | Tanner data file. |
+| `examples/tanners/TannerCrab_26_22_03d5_a.Run1.ctl` | Tanner control file. |
+| `examples/tanners/TannerCrab_26_22_03d5_a.prj` | Tanner projection file. |
+| `examples/tanners/gmacs_26_22_03d5_aEffExp1.par` | Fitted parameter table. |
+
+## Current Reader
+
+The Tanner files use a different GMACS text layout from the BBRKC example.
+`R/read_gmacs_tanner.R` therefore reads the Tanner file set directly instead of
+forcing these inputs through BBRKC-specific parser assumptions.
+
+```{r}
+source("R/read_gmacs_bbrkc.R")
+source("R/read_gmacs_tanner.R")
+
+tanner <- read_tanner_inputs("examples/tanners")
+validate_tanner_inputs(tanner)
+```
+
+## Input Summary
+
+```{r}
+dims <- tanner$data$dimensions
+data.frame(
+  quantity = names(dims),
+  value = as.integer(dims),
+  row.names = NULL
+)
+```
+
+```{r}
+data.frame(
+  component = c("catch", "survey", "size composition", "growth", "maturity"),
+  dataframes = c(
+    tanner$data$catch$n,
+    tanner$data$survey$n,
+    tanner$data$size_comp$n,
+    NA_integer_,
+    NA_integer_
+  ),
+  rows = c(
+    sum(tanner$data$catch$rows),
+    sum(tanner$data$survey$rows),
+    sum(tanner$data$size_comp$rows),
+    tanner$data$growth$n,
+    tanner$data$maturity$n
+  )
+)
+```
+
+## Parameter Summary
+
+```{r}
+data.frame(
+  parameter_rows = nrow(tanner$parameters),
+  active_estimated_parameters = sum(tanner$parameters$active),
+  min_estimated_index = min(tanner$parameters$estimated_index, na.rm = TRUE),
+  max_estimated_index = max(tanner$parameters$estimated_index, na.rm = TRUE)
+)
+```
+
+```{r}
+head(tanner$parameters[tanner$parameters$active, c(
+  "parameter_index", "estimated_index", "value", "label"
+)], 12)
+```
+
+## Current Status
+
+The Tanner reader validates:
+
+- model dimensions and size breaks;
+- fishery and survey names;
+- catch, survey, and size-composition dataframe counts;
+- growth and maturity observation counts;
+- fitted parameter table extraction from the `.par` file.
+
+The next implementation step is to add Tanner ADMB report outputs
+(`Gmacsall.out` and `gmacs.rep`, or their Tanner-equivalent names) so the same
+style of objective and deterministic parity checks used for BBRKC can be built.
+
+## Index Diagnostics
+
+The available Tanner folder does not include predicted index fits. The figure
+below shows the observed index series that the future Tanner RTMB port should
+match.
+
+```{r}
+#| label: fig-tanner-index-observations
+#| fig-cap: "Observed Tanner crab survey index series."
+#| code-fold: true
+index_obs <- tanner$data$survey_observations
+series_ids <- sort(unique(index_obs$series))
+old_par <- par(mfrow = c(ceiling(length(series_ids) / 2), 2), mar = c(3, 3, 2, 1), oma = c(1, 1, 0, 0))
+for (series in series_ids) {
+  x <- index_obs[index_obs$series == series, ]
+  plot(x$year, x$obs, type = "b", pch = 16, col = "#1b6da8",
+       xlab = "", ylab = "", main = paste(x$fleet[1], x$sex[1], x$maturity[1]),
+       bty = "l")
+  grid(col = "grey88")
+}
+par(old_par)
+```
+
+## Size-Composition Diagnostics
+
+The panels below show observed Tanner size compositions for recent rows from
+the first four size-composition dataframes.
+
+```{r}
+#| label: fig-tanner-size-composition-observations
+#| fig-cap: "Observed Tanner crab size compositions for selected recent rows."
+#| code-fold: true
+size_obs <- tanner$data$size_comp_observations
+series_ids <- sort(unique(size_obs$series))[1:4]
+old_par <- par(mfrow = c(2, 2), mar = c(3, 3, 2, 1), oma = c(1, 1, 0, 0))
+for (series in series_ids) {
+  x <- size_obs[size_obs$series == series, ]
+  x <- x[order(x$year), ]
+  row <- x[nrow(x), ]
+  bins <- grep("^bin_", names(row), value = TRUE)
+  values <- as.numeric(row[1, bins])
+  values <- values / sum(values)
+  plot(seq_along(values), values, type = "h", lwd = 3, col = "#1b6da8",
+       xlab = "", ylab = "", main = paste(row$fleet, row$sex, row$catch_type, row$year),
+       bty = "l")
+  grid(col = "grey88")
+}
+par(old_par)
+```

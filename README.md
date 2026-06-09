@@ -15,9 +15,11 @@ The detailed porting notes, parity checks, and next implementation steps live in
   factory.
 - `run_bbrkc.R`: parser, RTMB tape, and component-comparison smoke run.
 - `optimize_bbrkc.R`: short `nlminb()` optimization smoke test.
+- `run_tanner.R`: Tanner input parser and fitted-parameter summary for the
+  files in `examples/tanners`.
 - `gmacs.tpl`: GMACS ADMB template reference.
-- `tanners/`: Tanner crab GMACS input files retained as local reference
-  material.
+- `examples/tanners/`: Tanner crab GMACS input files retained as local
+  reference material.
 - `GMACS_InputFiles.zip`: original archive for the Tanner crab input files. This
   is ignored for future commits; the extracted `tanners/` files are the useful
   repository copy.
@@ -74,6 +76,7 @@ The Quarto notes are rendered for GitHub Pages under `docs/`:
 
 ```sh
 quarto render bbrkc_rtmb_port_steps.qmd --output-dir docs --output index.html
+quarto render tanner_rtmb_port_steps.qmd --output-dir docs --output tanner.html --no-clean
 ```
 
 Configure GitHub Pages to serve the `docs/` directory from the `main` branch.

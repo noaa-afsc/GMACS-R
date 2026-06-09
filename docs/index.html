@@ -143,6 +143,8 @@ window.Quarto = {
   <li><a href="#biomass" id="toc-biomass" class="nav-link" data-scroll-target="#biomass">Biomass</a></li>
   <li><a href="#recruitment-1" id="toc-recruitment-1" class="nav-link" data-scroll-target="#recruitment-1">Recruitment</a></li>
   <li><a href="#natural-mortality-1" id="toc-natural-mortality-1" class="nav-link" data-scroll-target="#natural-mortality-1">Natural Mortality</a></li>
+  <li><a href="#index-fit" id="toc-index-fit" class="nav-link" data-scroll-target="#index-fit">Index Fit</a></li>
+  <li><a href="#size-composition-fit" id="toc-size-composition-fit" class="nav-link" data-scroll-target="#size-composition-fit">Size-Composition Fit</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -1652,6 +1654,95 @@ Figure&nbsp;2: BBRKC recruitment trajectory from the current RTMB recruitment bl
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rtmb-natural-mortality-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;3: Mean natural mortality by sex from the current RTMB mortality block.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="index-fit" class="level3">
+<h3 class="anchored" data-anchor-id="index-fit">Index Fit</h3>
+<p>Observed survey indices are plotted against the current RTMB predictions for each BBRKC index series.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>index_fit <span class="ot">&lt;-</span> <span class="fu">index_fit_to_data_frame</span>(rtmb_model, rtmb_data)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>survey_obs <span class="ot">&lt;-</span> rtmb_data<span class="sc">$</span>survey<span class="sc">$</span>data</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>index_fit<span class="sc">$</span>observed <span class="ot">&lt;-</span> survey_obs<span class="sc">$</span>obs</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>series_ids <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">unique</span>(index_fit<span class="sc">$</span>series))</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>old_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="fu">ceiling</span>(<span class="fu">length</span>(series_ids) <span class="sc">/</span> <span class="dv">2</span>), <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">1</span>), <span class="at">oma =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (series <span class="cf">in</span> series_ids) {</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> index_fit[index_fit<span class="sc">$</span>series <span class="sc">==</span> series, ]</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  ylim <span class="ot">&lt;-</span> <span class="fu">range</span>(<span class="fu">c</span>(x<span class="sc">$</span>observed, x<span class="sc">$</span>predicted), <span class="at">finite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(x<span class="sc">$</span>year, x<span class="sc">$</span>observed, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> <span class="st">"#1b6da8"</span>, <span class="at">ylim =</span> ylim,</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">ylab =</span> <span class="st">""</span>, <span class="at">main =</span> <span class="fu">paste</span>(<span class="st">"Series"</span>, series), <span class="at">bty =</span> <span class="st">"l"</span>)</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(x<span class="sc">$</span>year, x<span class="sc">$</span>predicted, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"#c43c39"</span>)</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grid</span>(<span class="at">col =</span> <span class="st">"grey88"</span>)</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(old_par)</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"bottom"</span>, <span class="at">inset =</span> <span class="sc">-</span><span class="fl">0.02</span>, <span class="at">xpd =</span> <span class="cn">NA</span>, <span class="at">horiz =</span> <span class="cn">TRUE</span>, <span class="at">bty =</span> <span class="st">"n"</span>,</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">16</span>, <span class="cn">NA</span>), <span class="at">lty =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="dv">1</span>), <span class="at">lwd =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="dv">2</span>),</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"#1b6da8"</span>, <span class="st">"#c43c39"</span>), <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Observed"</span>, <span class="st">"Predicted"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-bbrkc-index-fit" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bbrkc-index-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="bbrkc_rtmb_port_steps_files/figure-html/fig-bbrkc-index-fit-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bbrkc-index-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Observed and predicted BBRKC survey indices by series.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="size-composition-fit" class="level3">
+<h3 class="anchored" data-anchor-id="size-composition-fit">Size-Composition Fit</h3>
+<p>The panels below compare observed and predicted size compositions for recent rows from the first four modified composition series.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>size_pred <span class="ot">&lt;-</span> <span class="fu">size_composition_to_data_frame</span>(rtmb_model, rtmb_data)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>obs_comp <span class="ot">&lt;-</span> rtmb_data<span class="sc">$</span>observed_size_compositions</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>plot_records <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (series <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">min</span>(<span class="dv">4</span>, <span class="fu">length</span>(obs_comp<span class="sc">$</span>observed)))) {</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  obs <span class="ot">&lt;-</span> obs_comp<span class="sc">$</span>observed[[series]]</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  row <span class="ot">&lt;-</span> <span class="fu">nrow</span>(obs)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  pred <span class="ot">&lt;-</span> size_pred[size_pred<span class="sc">$</span>modified_series <span class="sc">==</span> series, ]</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  pred_years <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">unique</span>(pred<span class="sc">$</span>year))</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  year <span class="ot">&lt;-</span> pred_years[row]</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  pred_row <span class="ot">&lt;-</span> pred[pred<span class="sc">$</span>year <span class="sc">==</span> year <span class="sc">&amp;</span> pred<span class="sc">$</span>modified_series <span class="sc">==</span> series, ]</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>  plot_records[[series]] <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">series =</span> series,</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> year,</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">observed =</span> <span class="fu">as.numeric</span>(obs[row, ]) <span class="sc">/</span> <span class="fu">sum</span>(<span class="fu">as.numeric</span>(obs[row, ])),</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">predicted =</span> pred_row<span class="sc">$</span>value <span class="sc">/</span> <span class="fu">sum</span>(pred_row<span class="sc">$</span>value)</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>old_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">1</span>), <span class="at">oma =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (rec <span class="cf">in</span> plot_records) {</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>  ylim <span class="ot">&lt;-</span> <span class="fu">range</span>(<span class="fu">c</span>(rec<span class="sc">$</span>observed, rec<span class="sc">$</span>predicted), <span class="at">finite =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(<span class="fu">seq_along</span>(rec<span class="sc">$</span>observed), rec<span class="sc">$</span>observed, <span class="at">type =</span> <span class="st">"h"</span>, <span class="at">lwd =</span> <span class="dv">3</span>,</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> <span class="st">"#1b6da8"</span>, <span class="at">ylim =</span> ylim, <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">ylab =</span> <span class="st">""</span>,</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">main =</span> <span class="fu">paste</span>(<span class="st">"Series"</span>, rec<span class="sc">$</span>series, rec<span class="sc">$</span>year), <span class="at">bty =</span> <span class="st">"l"</span>)</span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(<span class="fu">seq_along</span>(rec<span class="sc">$</span>predicted), rec<span class="sc">$</span>predicted, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"#c43c39"</span>)</span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grid</span>(<span class="at">col =</span> <span class="st">"grey88"</span>)</span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(old_par)</span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"bottom"</span>, <span class="at">inset =</span> <span class="sc">-</span><span class="fl">0.02</span>, <span class="at">xpd =</span> <span class="cn">NA</span>, <span class="at">horiz =</span> <span class="cn">TRUE</span>, <span class="at">bty =</span> <span class="st">"n"</span>,</span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>       <span class="at">lty =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>), <span class="at">lwd =</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">2</span>), <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"#1b6da8"</span>, <span class="st">"#c43c39"</span>),</span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Observed"</span>, <span class="st">"Predicted"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-bbrkc-size-composition-fit" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bbrkc-size-composition-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="bbrkc_rtmb_port_steps_files/figure-html/fig-bbrkc-size-composition-fit-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bbrkc-size-composition-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Observed and predicted BBRKC size compositions for selected recent rows.
 </figcaption>
 </figure>
 </div>
